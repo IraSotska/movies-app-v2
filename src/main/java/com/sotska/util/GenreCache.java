@@ -1,6 +1,6 @@
 package com.sotska.util;
 
-import com.sotska.dao.GenreRepository;
+import com.sotska.repository.GenreRepository;
 import com.sotska.entity.Genre;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

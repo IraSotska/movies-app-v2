@@ -28,7 +28,7 @@ public class MovieController {
     @GetMapping("/random")
     public List<Movie> getRandomMovies() {
         log.info("Requested to get random movies.");
-        return movieService.findRandomMovies();
+        return movieService.getRandomMovies();
     }
 
     @GetMapping("/genre/{genreId}")

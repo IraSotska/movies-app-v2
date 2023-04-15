@@ -1,6 +1,6 @@
 package com.sotska.service;
 
-import com.sotska.dao.MovieRepository;
+import com.sotska.repository.MovieRepository;
 import com.sotska.entity.Movie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +19,7 @@ public class MovieService {
         return movieRepository.findAll(pageable);
     }
 
-    public List<Movie> findRandomMovies() {
+    public List<Movie> getRandomMovies() {
         return movieRepository.getRandomMovies();
     }
 

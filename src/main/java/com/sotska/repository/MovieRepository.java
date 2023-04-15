@@ -1,4 +1,4 @@
-package com.sotska.dao;
+package com.sotska.repository;
 
 import com.sotska.entity.Movie;
 import org.springframework.data.domain.Page;

@@ -1,4 +1,4 @@
-package com.sotska.dao;
+package com.sotska.repository;
 
 import com.sotska.entity.Genre;
 import org.springframework.data.jpa.repository.JpaRepository;
