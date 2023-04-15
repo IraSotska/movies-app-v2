@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sotska.dao.GenreRepository;
 import com.sotska.entity.Genre;
+import com.sotska.util.GenreCache;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +38,15 @@ class GenreCacheITest {
     @MockBean
     private GenreRepository genreRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private GenreCache genreCache;
+
+    @Autowired
+    private MockMvc mockMvc;
+
     public static final TypeReference<List<Genre>> VALUE_TYPE = new TypeReference<>() {
     };
 
@@ -56,30 +65,42 @@ class GenreCacheITest {
             .name("drama")
             .build();
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private MockMvc mockMvc;
-
     @Test
     void shouldGetAllGenresFromCache() throws Exception {
 
         when(genreRepository.findAll()).thenReturn(List.of(western, horror, drama));
 
-        var result = getGenresByUrl("/genre");
-        var result2 = getGenresByUrl("/genre");
+        var firstResult = getGenres();
+        var secondResult = getGenres();
 
-        assertEquals(3, result.size());
-        assertEquals(3, result2.size());
-        assertThat(List.of(western, horror, drama)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
+        assertEquals(3, firstResult.size());
+        assertEquals(3, secondResult.size());
+        assertThat(List.of(western, horror, drama)).usingRecursiveComparison().ignoringFields("id").isEqualTo(firstResult);
 
         verify(genreRepository, times(1)).findAll();
         verifyNoMoreInteractions(genreRepository);
     }
 
-    private List<Genre> getGenresByUrl(String url) throws Exception {
-        var json = mockMvc.perform(get(url))
+    @Test
+    void shouldUpdateGenresInCache() throws Exception {
+        genreCache.setTimeToLive(1);
+
+        when(genreRepository.findAll()).thenReturn(List.of(western, horror, drama)).thenReturn(List.of(western, drama));
+
+        var firstResult = getGenres();
+        var secondResult = getGenres();
+
+        assertEquals(3, firstResult.size());
+        assertEquals(2, secondResult.size());
+        assertThat(List.of(western, horror, drama)).usingRecursiveComparison().ignoringFields("id").isEqualTo(firstResult);
+        assertThat(List.of(western, drama)).usingRecursiveComparison().ignoringFields("id").isEqualTo(secondResult);
+
+        verify(genreRepository, times(2)).findAll();
+        verifyNoMoreInteractions(genreRepository);
+    }
+
+    private List<Genre> getGenres() throws Exception {
+        var json = mockMvc.perform(get("/genre"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 

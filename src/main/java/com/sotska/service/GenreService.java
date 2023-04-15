@@ -14,6 +14,6 @@ public class GenreService {
     private final GenreCache genreCache;
 
     public List<Genre> findAll() {
-        return genreCache.getAllGenres();
+        return genreCache.findAll();
     }
 }

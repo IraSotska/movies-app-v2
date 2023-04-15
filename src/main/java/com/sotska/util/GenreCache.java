@@ -4,24 +4,22 @@ import com.sotska.dao.GenreRepository;
 import com.sotska.entity.Genre;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class GenreCache {
-
-    @Value("${cache.genre.time-to-live}")
-    private Long timeToLive;
 
     private final GenreRepository genreRepository;
     private List<Genre> cashedGenres;
 
     private Date lastUpdate;
+    private Long timeToLive;
 
-    public List<Genre> getAllGenres() {
+    public List<Genre> findAll() {
         var now = System.currentTimeMillis();
         var expireDate = new Date(now - timeToLive);
 
@@ -39,5 +37,10 @@ public class GenreCache {
     private void updateData(long now) {
         lastUpdate = new Date(now);
         cashedGenres = genreRepository.findAll();
+    }
+
+    @Value("${cache.genre.time-to-live}")
+    public void setTimeToLive(long timeToLive) {
+        this.timeToLive = timeToLive;
     }
 }

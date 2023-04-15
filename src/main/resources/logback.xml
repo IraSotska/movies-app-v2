@@ -1,6 +1,6 @@
 <configuration>
 
-    <property name="LOG_DIR" value="/var/log/application"/>
+    <property name="LOG_DIR" value="${USER_HOME}/log/movies-app-v2"/>
     <property name="LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">

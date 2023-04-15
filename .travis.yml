@@ -1,0 +1,11 @@
+language: java
+jdk:
+  - oraclejdk17
+
+deploy:
+  provider: heroku
+  api_key:
+    secure: 92aa8602-71cf-4f47-93bb-76154f99f3a3
+  app: movies-app-ira
+  on:
+    repo: IraSotska/movies-app-2
