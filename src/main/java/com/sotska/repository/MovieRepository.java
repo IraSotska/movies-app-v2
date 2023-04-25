@@ -18,4 +18,6 @@ public interface MovieRepository extends PagingAndSortingRepository<Movie, Long>
 
     @Query(value = "SELECT * FROM movie ORDER BY RANDOM() LIMIT 3", nativeQuery = true)
     List<Movie> getRandomMovies();
+
+    Movie findById(Long movieId);
 }

@@ -3,12 +3,14 @@ package com.sotska.util;
 import com.sotska.repository.GenreRepository;
 import com.sotska.entity.Genre;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GenreCache {
@@ -16,31 +18,13 @@ public class GenreCache {
     private final GenreRepository genreRepository;
     private List<Genre> cashedGenres;
 
-    private Date lastUpdate;
-    private Long timeToLive;
-
     public List<Genre> findAll() {
-        var now = System.currentTimeMillis();
-        var expireDate = new Date(now - timeToLive);
-
-        if ((cashedGenres == null) || (expireDate.after(lastUpdate))) {
-            synchronized (this) {
-                if ((cashedGenres == null) || (expireDate.after(lastUpdate))) {
-                    updateData(now);
-                    return cashedGenres;
-                }
-            }
-        }
         return cashedGenres;
     }
 
-    private void updateData(long now) {
-        lastUpdate = new Date(now);
+    @Scheduled(fixedDelayString = "${cache.time-to-live.genre}", timeUnit = TimeUnit.HOURS)
+    private void updateData() {
         cashedGenres = genreRepository.findAll();
-    }
-
-    @Value("${cache.genre.time-to-live}")
-    public void setTimeToLive(long timeToLive) {
-        this.timeToLive = timeToLive;
+        log.info("Genres was updated.");
     }
 }

@@ -7,11 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
+import static com.sotska.entity.Currency.USD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -24,7 +27,6 @@ class MovieServiceTest {
 
     @Autowired
     private MovieService movieService;
-
 
     private final Genre western = Genre.builder()
             .id(1L)
@@ -82,6 +84,46 @@ class MovieServiceTest {
     }
 
     @Test
+    void shouldGetMovieById() {
+        var movieId = 3L;
+
+        when(movieRepository.findById(movieId)).thenReturn(movie3);
+
+        var result = movieService.getById(movieId, USD);
+
+        assertThat(result).isNotNull().isEqualTo(movie3);
+
+        verify(movieRepository).findById(movieId);
+        verifyNoMoreInteractions(movieRepository);
+    }
+
+    @Test
+    void shouldFindAllMovies() {
+        var movies = List.of(movie1, movie2, movie3);
+        var pagedResponse = new PageImpl<>(movies);
+        var pageable = PageRequest.of(0, 3);
+
+        when(movieRepository.findAll(pageable)).thenReturn(pagedResponse);
+
+        var result = movieService.findAll(pageable);
+
+        assertThat(result).isNotNull().isEqualTo(pagedResponse);
+
+        verify(movieRepository).findAll(pageable);
+        verifyNoMoreInteractions(movieRepository);
+    }
+
+    @Test
     void getMoviesByGenre() {
+        var movies = List.of(movie2, movie3);
+        var genreId = 2L;
+
+        when(movieRepository.findByGenres_Id(genreId)).thenReturn(movies);
+        var result = movieService.getMoviesByGenre(genreId);
+
+        assertThat(result).isNotNull().isEqualTo(movies);
+
+        verify(movieRepository).findByGenres_Id(genreId);
+        verifyNoMoreInteractions(movieRepository);
     }
 }

@@ -1,5 +1,6 @@
 package com.sotska.controller;
 
+import com.sotska.entity.Currency;
 import com.sotska.entity.Movie;
 import com.sotska.service.MovieService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,12 @@ public class MovieController {
     public List<Movie> getRandomMovies() {
         log.info("Requested to get random movies.");
         return movieService.getRandomMovies();
+    }
+
+    @GetMapping("/{movieId}")
+    public Movie getMovieById(@PathVariable Long movieId, @RequestParam(defaultValue = "UAH") Currency currency) {
+        log.info("Requested to get movie by id: {}.", movieId);
+        return movieService.getById(movieId, currency);
     }
 
     @GetMapping("/genre/{genreId}")

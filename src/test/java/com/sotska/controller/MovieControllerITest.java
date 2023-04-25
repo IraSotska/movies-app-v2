@@ -27,7 +27,8 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Sql(scripts = {"classpath:add_movies.sql", "classpath:add_genres.sql", "classpath:add_movies_genres.sql"}, executionPhase = BEFORE_TEST_METHOD)
+@Sql(scripts = {"classpath:add_movies.sql", "classpath:add_genres.sql", "classpath:add_movies_genres.sql",
+        "classpath:add_countries.sql", "classpath:add_movie_country.sql"}, executionPhase = BEFORE_TEST_METHOD)
 @Sql(scripts = "classpath:clear_tables.sql", executionPhase = AFTER_TEST_METHOD)
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -35,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class MovieControllerITest {
 
-    public static final TypeReference<List<Movie>> VALUE_TYPE = new TypeReference<>() {
+    public static final TypeReference<List<Movie>> LIST_OF_MOVIES_TYPE = new TypeReference<>() {
     };
 
     private final Genre western = Genre.builder()
@@ -54,28 +55,34 @@ class MovieControllerITest {
             .build();
 
     private final Movie movie1 = Movie.builder()
+            .id(1L)
             .nameUkrainian("movie1")
             .price(3.0)
             .picturePath("http://movieee")
             .rating(5.6)
+            .nameNative("native1")
             .yearOfRelease(1991L)
             .genres(List.of(western))
             .build();
 
     private final Movie movie2 = Movie.builder()
+            .id(2L)
             .nameUkrainian("movie2")
             .price(2.0)
             .picturePath("http://movieee2")
             .rating(10.6)
+            .nameNative("native2")
             .yearOfRelease(1992L)
             .genres(List.of(drama))
             .build();
 
     private final Movie movie3 = Movie.builder()
+            .id(3L)
             .nameUkrainian("movie3")
             .price(1.0)
             .picturePath("http://movieee3")
             .rating(4.2)
+            .nameNative("native3")
             .yearOfRelease(1993L)
             .genres(List.of(horror))
             .build();
@@ -92,6 +99,31 @@ class MovieControllerITest {
 
         assertEquals(3, result.size());
         assertThat(List.of(movie1, movie2, movie3)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
+    }
+
+    @Test
+    void shouldGetMovieById() throws Exception {
+        var json = mockMvc.perform(get("/movie/2"))
+                .andDo(print()).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        var result = objectMapper.readValue(json, new TypeReference<Movie>() {
+        });
+
+        assertThat(movie2).isNotNull().isEqualTo(result);
+    }
+
+    @Test
+    void shouldGetMovieByIdInUSDCurrency() throws Exception {
+        var json = mockMvc.perform(get("/movie/2")
+                .param("currency", "USD"))
+                .andDo(print()).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        var result = objectMapper.readValue(json, new TypeReference<Movie>() {
+        });
+
+        assertThat(movie2).isNotNull().isEqualTo(result);
     }
 
     @Test
@@ -137,7 +169,7 @@ class MovieControllerITest {
     void shouldGetRandomMovies() throws Exception {
         var result = objectMapper.readValue(mockMvc.perform(get("/movie/random"))
                 .andDo(print()).andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString(), VALUE_TYPE);
+                .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
         assertEquals(3, result.size());
     }
@@ -146,7 +178,7 @@ class MovieControllerITest {
     void shouldGetMoviesByGenre() throws Exception {
         var result = objectMapper.readValue(mockMvc.perform(get("/movie/genre/3"))
                 .andDo(print()).andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString(), VALUE_TYPE);
+                .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
         assertEquals(1, result.size());
         assertThat(movie2).usingRecursiveComparison().ignoringFields("id").isEqualTo(result.get(0));
@@ -156,7 +188,7 @@ class MovieControllerITest {
     void shouldGetMoviesByNotExistingGenre() throws Exception {
         var result = objectMapper.readValue(mockMvc.perform(get("/movie/genre/4"))
                 .andDo(print()).andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString(), VALUE_TYPE);
+                .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
         assertEquals(0, result.size());
     }
@@ -168,6 +200,6 @@ class MovieControllerITest {
 
         final ObjectNode node = new ObjectMapper().readValue(json, ObjectNode.class);
 
-        return objectMapper.readValue(node.get("content").toString(), VALUE_TYPE);
+        return objectMapper.readValue(node.get("content").toString(), LIST_OF_MOVIES_TYPE);
     }
 }
