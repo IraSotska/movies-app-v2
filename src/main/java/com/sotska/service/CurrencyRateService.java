@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.sotska.entity.Currency.UAH;
 import static java.util.stream.Collectors.toMap;
 
 @Slf4j
@@ -41,7 +42,7 @@ public class CurrencyRateService {
 
     @Scheduled(fixedDelayString = "${cache.time-to-live.currency-rates}", timeUnit = TimeUnit.HOURS)
     private void updateCurrencyRates() {
-        currencyRates = Arrays.stream(Currency.values()).collect(toMap(currency -> currency, this::extractCurrencyRate));
+        currencyRates = Arrays.stream(Currency.values()).filter(currency -> !UAH.equals(currency)).collect(toMap(currency -> currency, this::extractCurrencyRate));
         log.info("Currency rates was updated.");
     }
 
