@@ -32,9 +32,11 @@ public class MovieService {
     }
 
     public Movie getById(Long movieId, Currency currency) {
+        var movie = movieRepository.findById(movieId);
         if (!UAH.equals(currency)) {
             var rate = currencyRateService.getCurrencyRate(currency);
+            movie.setPrice(movie.getPrice() / rate);
         }
-        return movieRepository.findById(movieId);
+        return movie;
     }
 }

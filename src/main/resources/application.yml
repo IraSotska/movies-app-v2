@@ -1,21 +1,13 @@
 spring:
+  jpa.show-sql: true
   datasource:
     url: jdbc:postgresql://localhost:5432/
     username: ira
     password: pwd
-  flyway.enabled: true
-
-  jpa:
-    show-sql: false
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-
-    properties:
-      hibernate.format_sql: true
-      hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
 
 cache.time-to-live:
   genre: 4
   session: 2
-  currency-rates: 6
+  currency-rates: 2
 
 service.path.nbu: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange

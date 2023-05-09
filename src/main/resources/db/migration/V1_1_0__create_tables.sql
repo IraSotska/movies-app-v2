@@ -21,7 +21,7 @@ CREATE TABLE country
     name VARCHAR(255)
 );
 
-CREATE TABLE "user"
+CREATE TABLE users
 (
     id       SERIAL primary key,
     email    VARCHAR(100),
@@ -47,7 +47,7 @@ CREATE TABLE movie_country
 CREATE TABLE review
 (
     id      SERIAL primary key,
-    user_id SERIAL REFERENCES "user" (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    user_id SERIAL REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
     text    VARCHAR(1000)
 );
 

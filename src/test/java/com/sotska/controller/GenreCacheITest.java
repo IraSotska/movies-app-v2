@@ -83,7 +83,7 @@ class GenreCacheITest {
 
     @Test
     void shouldUpdateGenresInCache() throws Exception {
-        genreCache.setTimeToLive(1);
+//        genreCache.setTimeToLive(1);
 
         when(genreRepository.findAll()).thenReturn(List.of(western, horror, drama)).thenReturn(List.of(western, drama));
 

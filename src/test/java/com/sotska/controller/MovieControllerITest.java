@@ -3,10 +3,13 @@ package com.sotska.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sotska.entity.Genre;
-import com.sotska.entity.Movie;
+import com.github.database.rider.core.api.dataset.DataSet;
+import com.github.database.rider.spring.api.DBRider;
+import com.sotska.entity.*;
+import com.sotska.service.CurrencyRateService;
 import org.junit.jupiter.api.Test;
 
+import static com.sotska.entity.Currency.USD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -15,21 +18,20 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Sql(scripts = {"classpath:add_movies.sql", "classpath:add_genres.sql", "classpath:add_movies_genres.sql",
-        "classpath:add_countries.sql", "classpath:add_movie_country.sql"}, executionPhase = BEFORE_TEST_METHOD)
-@Sql(scripts = "classpath:clear_tables.sql", executionPhase = AFTER_TEST_METHOD)
+@DBRider
+@DataSet(value = {"datasets/movie/dataset_user.yml", "datasets/movie/dataset_reviews.yml",
+        "datasets/movie/movie_review.yml", "datasets/movie/dataset_genres.yml", "datasets/movie/dataset_movies.yml",
+        "datasets/movie/movie_genre.yml", "datasets/movie/dataset_countries.yml", "datasets/movie/movie_country.yml"},
+        cleanAfter = true, cleanBefore = true, skipCleaningFor = "flyway_schema_history")
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Testcontainers
@@ -38,6 +40,39 @@ class MovieControllerITest {
 
     public static final TypeReference<List<Movie>> LIST_OF_MOVIES_TYPE = new TypeReference<>() {
     };
+
+    private static final Country UKRAINE = Country.builder()
+            .id(1L)
+            .name("Ukraine")
+            .build();
+
+    private static final Country AUSTRIA = Country.builder()
+            .id(2L)
+            .name("Austria")
+            .build();
+
+    private static final Country ITALY = Country.builder()
+            .id(3L)
+            .name("Italy")
+            .build();
+
+    private static final Review review1 = Review.builder()
+            .id(1L)
+            .userId(1L)
+            .text("review")
+            .build();
+
+    private static final Review review2 = Review.builder()
+            .id(2L)
+            .userId(1L)
+            .text("review2")
+            .build();
+
+    private static final Review review3 = Review.builder()
+            .id(3L)
+            .userId(1L)
+            .text("review3")
+            .build();
 
     private final Genre western = Genre.builder()
             .id(1L)
@@ -63,6 +98,8 @@ class MovieControllerITest {
             .nameNative("native1")
             .yearOfRelease(1991L)
             .genres(List.of(western))
+            .reviews(List.of(review1))
+            .countries(List.of(ITALY))
             .build();
 
     private final Movie movie2 = Movie.builder()
@@ -74,6 +111,8 @@ class MovieControllerITest {
             .nameNative("native2")
             .yearOfRelease(1992L)
             .genres(List.of(drama))
+            .countries(List.of(UKRAINE))
+            .reviews(List.of(review3))
             .build();
 
     private final Movie movie3 = Movie.builder()
@@ -84,7 +123,9 @@ class MovieControllerITest {
             .rating(4.2)
             .nameNative("native3")
             .yearOfRelease(1993L)
+            .countries(List.of(AUSTRIA))
             .genres(List.of(horror))
+            .reviews(List.of(review2))
             .build();
 
     @Autowired
@@ -93,9 +134,12 @@ class MovieControllerITest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private CurrencyRateService currencyRateService;
+
     @Test
     void shouldGetAllMovies() throws Exception {
-        var result = getMoviesByUrl("/movie?page=0&size=3");
+        var result = getMoviesByUrl("/movies?page=0&size=3");
 
         assertEquals(3, result.size());
         assertThat(List.of(movie1, movie2, movie3)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
@@ -103,7 +147,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetMovieById() throws Exception {
-        var json = mockMvc.perform(get("/movie/2"))
+        var json = mockMvc.perform(get("/movies/2"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -115,8 +159,26 @@ class MovieControllerITest {
 
     @Test
     void shouldGetMovieByIdInUSDCurrency() throws Exception {
-        var json = mockMvc.perform(get("/movie/2")
+
+        var currencyRate = currencyRateService.getCurrencyRate(USD);
+
+        var json = mockMvc.perform(get("/movies/2")
                 .param("currency", "USD"))
+                .andDo(print()).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        var result = objectMapper.readValue(json, new TypeReference<Movie>() {
+        });
+
+        movie2.setPrice(movie2.getPrice() / currencyRate);
+
+        assertThat(movie2).isNotNull().isEqualTo(result);
+    }
+
+    @Test
+    void shouldGetMovieByIdInUAHCurrency() throws Exception {
+        var json = mockMvc.perform(get("/movies/2")
+                .param("currency", "UAH"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -128,7 +190,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetAllMoviesSortByPriceDesc() throws Exception {
-        var result = getMoviesByUrl("/movie?sort=price&direction=desc");
+        var result = getMoviesByUrl("/movies?sort=price&direction=desc");
 
         assertEquals(3, result.size());
         assertThat(List.of(movie3, movie2, movie1)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
@@ -136,7 +198,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetAllMoviesSortByPriceAsc() throws Exception {
-        var result = getMoviesByUrl("/movie?sort=price&direction=asc");
+        var result = getMoviesByUrl("/movies?sort=price&direction=asc");
 
         assertEquals(3, result.size());
         assertThat(List.of(movie3, movie2, movie1)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
@@ -144,7 +206,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetAllMoviesSortByRatingDesc() throws Exception {
-        var result = getMoviesByUrl("/movie?sort=rating&direction=desc");
+        var result = getMoviesByUrl("/movies?sort=rating&direction=desc");
 
         assertEquals(3, result.size());
         assertThat(List.of(movie3, movie1, movie2)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
@@ -152,14 +214,14 @@ class MovieControllerITest {
 
     @Test
     void shouldGetAllMoviesSortByRatingAsc() throws Exception {
-        var result = getMoviesByUrl("/movie?sort=rating&direction=ASC");
+        var result = getMoviesByUrl("/movies?sort=rating&direction=ASC");
         assertEquals(3, result.size());
         assertThat(List.of(movie3, movie1, movie2)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
     }
 
     @Test
     void shouldGetOneMovie() throws Exception {
-        var result = getMoviesByUrl("/movie?size=1&page=1");
+        var result = getMoviesByUrl("/movies?size=1&page=1");
 
         assertEquals(1, result.size());
         assertThat(movie2).usingRecursiveComparison().ignoringFields("id").isEqualTo(result.get(0));
@@ -167,7 +229,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetRandomMovies() throws Exception {
-        var result = objectMapper.readValue(mockMvc.perform(get("/movie/random"))
+        var result = objectMapper.readValue(mockMvc.perform(get("/movies/random"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
@@ -176,7 +238,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetMoviesByGenre() throws Exception {
-        var result = objectMapper.readValue(mockMvc.perform(get("/movie/genre/3"))
+        var result = objectMapper.readValue(mockMvc.perform(get("/movies/genre/3"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
@@ -186,7 +248,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetMoviesByNotExistingGenre() throws Exception {
-        var result = objectMapper.readValue(mockMvc.perform(get("/movie/genre/4"))
+        var result = objectMapper.readValue(mockMvc.perform(get("/movies/genre/4"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 

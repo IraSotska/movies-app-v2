@@ -1,0 +1,9 @@
+GENRE:
+  - ID: 1
+    NAME: "western"
+
+  - ID: 2
+    NAME: "horror"
+
+  - ID: 3
+    NAME: "drama"

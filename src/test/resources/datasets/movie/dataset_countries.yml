@@ -1,0 +1,9 @@
+COUNTRY:
+  - id: 1
+    name: "Ukraine"
+
+  - id: 2
+    name: "Austria"
+
+  - id: 3
+    name: "Italy"

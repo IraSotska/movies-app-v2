@@ -1,5 +1,6 @@
 package com.sotska.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sotska.entity.Currency;
@@ -13,12 +14,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static com.sotska.entity.Currency.UAH;
-import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
@@ -28,6 +25,8 @@ public class CurrencyRateService {
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MM");
     private static final String AND_DETERMINER = "&";
     private static final String PARAMS_DETERMINER = "?";
+    public static final String CURRENCY_NAME_KEY = "cc";
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
@@ -42,25 +41,34 @@ public class CurrencyRateService {
 
     @Scheduled(fixedDelayString = "${cache.time-to-live.currency-rates}", timeUnit = TimeUnit.HOURS)
     private void updateCurrencyRates() {
-        currencyRates = Arrays.stream(Currency.values()).filter(currency -> !UAH.equals(currency)).collect(toMap(currency -> currency, this::extractCurrencyRate));
+        currencyRates = extractCurrencyRates(List.of("USD", "EUR"));
         log.info("Currency rates was updated.");
     }
 
     @SneakyThrows
-    private Double extractCurrencyRate(Currency currency) {
-        var result = restTemplate.getForObject(createPath(currency.name()), String.class);
-        return Double.parseDouble(objectMapper.readValue(result, ArrayNode.class).get(0).get("rate").asText());
+    private Map<Currency, Double> extractCurrencyRates(List<String> currencies) {
+        var nbuResponse = restTemplate.getForObject(createPath(), String.class);
+
+        var arrayNodes = objectMapper.readValue(nbuResponse, ArrayNode.class);
+        var currencyRates = new HashMap<Currency, Double>();
+
+        for (var iterator = arrayNodes.elements(); iterator.hasNext(); ) {
+            var node = iterator.next();
+            var currencyName = node.get(CURRENCY_NAME_KEY).asText();
+
+            if (currencies.contains(currencyName)) {
+                currencyRates.put(Currency.valueOf(currencyName), node.get(CURRENCY_NAME_KEY).doubleValue());
+            }
+        }
+        return currencyRates;
     }
 
-    private String createPath(String currency) {
+    private String createPath() {
         var date = LocalDate.now();
         var formattedDate = date.getYear() + date.format(MONTH_FORMATTER) + date.getDayOfMonth();
 
         var pathBuilder = new StringBuilder(nbuPath);
         pathBuilder.append(PARAMS_DETERMINER);
-        pathBuilder.append("valcode=");
-        pathBuilder.append(currency);
-        pathBuilder.append(AND_DETERMINER);
         pathBuilder.append("date=");
         pathBuilder.append(formattedDate);
         pathBuilder.append(AND_DETERMINER);

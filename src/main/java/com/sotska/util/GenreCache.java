@@ -2,6 +2,7 @@ package com.sotska.util;
 
 import com.sotska.repository.GenreRepository;
 import com.sotska.entity.Genre;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,8 +23,9 @@ public class GenreCache {
         return cashedGenres;
     }
 
+    @PostConstruct
     @Scheduled(fixedDelayString = "${cache.time-to-live.genre}", timeUnit = TimeUnit.HOURS)
-    private void updateData() {
+    public void updateData() {
         cashedGenres = genreRepository.findAll();
         log.info("Genres was updated.");
     }
