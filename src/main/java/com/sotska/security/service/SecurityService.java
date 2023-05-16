@@ -25,18 +25,18 @@ public class SecurityService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
-    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        var user = userRepository.findByEmail(loginRequestDto.getEmail());
-        var encryptedPassword = passwordEncoder.encode(loginRequestDto.getPassword());
-        var token = UUID.randomUUID().toString();
-        sessions.put(user.getEmail(), token);
-
-        if (!Objects.equals(user.getEncryptedPassword(), encryptedPassword)) {
-            throw new IllegalArgumentException("Wrong password for user: " + user.getUserName());
-        }
-
-        return LoginResponseDto.builder().nickName(user.getNickName()).token(token).build();
-    }
+//    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+//        var user = userRepository.findByEmail(loginRequestDto.getEmail());
+//        var encryptedPassword = passwordEncoder.encode(loginRequestDto.getPassword());
+//        var token = UUID.randomUUID().toString();
+//        sessions.put(user.getEmail(), token);
+//
+//        if (!Objects.equals(user.getEncryptedPassword(), encryptedPassword)) {
+//            throw new IllegalArgumentException("Wrong password for user: " + user.getUserName());
+//        }
+//
+//        return LoginResponseDto.builder().nickName(user.getNickName()).token(token).build();
+//    }
 
     public void logout(String token) {
         sessions.values().remove(token);
