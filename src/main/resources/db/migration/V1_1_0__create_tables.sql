@@ -25,8 +25,8 @@ CREATE TABLE users
 (
     id       SERIAL primary key,
     email    VARCHAR(100),
-    userName VARCHAR(100),
-    nickName VARCHAR(100),
+    user_name VARCHAR(100),
+    nick_name VARCHAR(100),
     encrypted_password VARCHAR(100)
 );
 

@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -25,12 +26,15 @@ public class AuthenticationController {
     @PostMapping("/login")
     public LoginResponseDto login(@RequestBody @NonNull LoginRequestDto loginRequestDto) {
         log.info("Requested to login user: {}.", loginRequestDto.getEmail());
+        var email = loginRequestDto.getEmail();
         try {
-            var userDetails = securityService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+            var userDetails = securityService.login(email, loginRequestDto.getPassword());
 
-            return LoginResponseDto.builder().nickName(loginRequestDto.getEmail()).token(userDetails).build();
+            return LoginResponseDto.builder().nickName(email).token(userDetails).build();
         } catch (BadCredentialsException ex) {
-            throw new IllegalArgumentException("Credentials not correct.");
+            throw new IllegalArgumentException("Credentials not correct.", ex);
+        } catch (InternalAuthenticationServiceException ex) {
+            throw new IllegalArgumentException("User with login: " + email + " is not exist", ex);
         }
     }
 
@@ -42,5 +46,6 @@ public class AuthenticationController {
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
+        securityService.logout(token);
     }
 }

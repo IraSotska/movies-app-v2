@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -26,12 +27,19 @@ public class JwtUtils {
                 .claim("authorities", userDetails.getAuthorities())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
-                .signWith(SignatureAlgorithm.ES256, JWT_SIGN_KEY).compact();
+                .signWith(SignatureAlgorithm.HS512, JWT_SIGN_KEY).compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         var userName = extractUserName(token);
         return userName.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    public Optional<String> extractToken(String token) {
+        return token != null && token.startsWith("Bearer") ?
+                Optional.of(token.substring(6)) :
+                Optional.empty();
+
     }
 
     public boolean isTokenExpired(String token) {
@@ -55,4 +63,3 @@ public class JwtUtils {
         return Jwts.parser().setSigningKey(JWT_SIGN_KEY).parseClaimsJws(token).getBody();
     }
 }
-

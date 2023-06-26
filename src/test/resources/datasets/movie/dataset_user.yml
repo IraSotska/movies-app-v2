@@ -1,6 +1,6 @@
 USERS:
   - id: 1
     email: "ira@gmail.com"
-    userName: "iryna"
-    nickName: "iraaa"
+    user_name: "iryna"
+    nick_name: "iraaa"
     encrypted_password: "pass"
