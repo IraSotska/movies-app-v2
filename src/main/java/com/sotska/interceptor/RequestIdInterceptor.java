@@ -1,6 +1,6 @@
 package com.sotska.interceptor;
 
-import com.sotska.security.config.JwtUtils;
+import com.sotska.util.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,8 @@
-package com.sotska.security.controller;
+package com.sotska.web.controller;
 
-import com.sotska.security.dto.LoginRequestDto;
-import com.sotska.security.dto.LoginResponseDto;
-import com.sotska.security.service.SecurityService;
+import com.sotska.service.SecurityService;
+import com.sotska.web.dto.LoginRequestDto;
+import com.sotska.web.dto.LoginResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;

@@ -1,6 +1,6 @@
-package com.sotska.security.config;
+package com.sotska.config;
 
-import com.sotska.security.service.UserService;
+import com.sotska.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

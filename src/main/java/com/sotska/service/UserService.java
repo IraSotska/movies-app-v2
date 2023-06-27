@@ -1,4 +1,4 @@
-package com.sotska.security.service;
+package com.sotska.service;
 
 import com.sotska.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,4 +18,3 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 }
-

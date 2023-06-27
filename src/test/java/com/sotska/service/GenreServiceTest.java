@@ -1,7 +1,7 @@
 package com.sotska.service;
 
 import com.sotska.repository.GenreRepository;
-import com.sotska.util.GenreCache;
+import com.sotska.cache.GenreCache;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

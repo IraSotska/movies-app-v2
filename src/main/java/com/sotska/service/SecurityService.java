@@ -1,7 +1,7 @@
-package com.sotska.security.service;
+package com.sotska.service;
 
 import com.sotska.interceptor.RequestIdHolder;
-import com.sotska.security.config.JwtUtils;
+import com.sotska.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;

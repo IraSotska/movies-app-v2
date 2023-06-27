@@ -1,4 +1,4 @@
-package com.sotska.security.config;
+package com.sotska.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

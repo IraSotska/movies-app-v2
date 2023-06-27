@@ -1,7 +1,7 @@
 package com.sotska.service;
 
 import com.sotska.entity.Genre;
-import com.sotska.util.GenreCache;
+import com.sotska.cache.GenreCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

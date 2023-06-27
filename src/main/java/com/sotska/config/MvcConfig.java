@@ -1,4 +1,4 @@
-package com.sotska.security.config;
+package com.sotska.config;
 
 import com.sotska.interceptor.RequestIdInterceptor;
 import lombok.RequiredArgsConstructor;

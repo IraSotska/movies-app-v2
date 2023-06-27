@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sotska.repository.GenreRepository;
 import com.sotska.entity.Genre;
-import com.sotska.util.GenreCache;
+import com.sotska.cache.GenreCache;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

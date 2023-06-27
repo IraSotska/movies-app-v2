@@ -1,4 +1,4 @@
-package com.sotska.security.dto;
+package com.sotska.web.dto;
 
 import lombok.*;
 
