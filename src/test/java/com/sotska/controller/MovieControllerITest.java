@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Testcontainers
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class MovieControllerITest {
 
     public static final TypeReference<List<Movie>> LIST_OF_MOVIES_TYPE = new TypeReference<>() {
@@ -73,6 +73,7 @@ class MovieControllerITest {
             .userId(1L)
             .text("review3")
             .build();
+    private static final String MOVIES_PATH = "/v1/movies";
 
     private final Genre western = Genre.builder()
             .id(1L)
@@ -139,7 +140,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetAllMovies() throws Exception {
-        var result = getMoviesByUrl("/movies?page=0&size=3");
+        var result = getMoviesByUrl(MOVIES_PATH + "?page=0&size=3");
 
         assertEquals(3, result.size());
         assertThat(List.of(movie1, movie2, movie3)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
@@ -147,7 +148,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetMovieById() throws Exception {
-        var json = mockMvc.perform(get("/movies/2"))
+        var json = mockMvc.perform(get(MOVIES_PATH + "/2"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -162,7 +163,7 @@ class MovieControllerITest {
 
         var currencyRate = currencyRateService.getCurrencyRate(USD);
 
-        var json = mockMvc.perform(get("/movies/2")
+        var json = mockMvc.perform(get(MOVIES_PATH + "/2")
                 .param("currency", "USD"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
@@ -177,7 +178,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetMovieByIdInUAHCurrency() throws Exception {
-        var json = mockMvc.perform(get("/movies/2")
+        var json = mockMvc.perform(get(MOVIES_PATH + "/2")
                 .param("currency", "UAH"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
@@ -190,7 +191,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetAllMoviesSortByPriceDesc() throws Exception {
-        var result = getMoviesByUrl("/movies?sort=price&direction=desc");
+        var result = getMoviesByUrl(MOVIES_PATH + "?sort=price&direction=desc");
 
         assertEquals(3, result.size());
         assertThat(List.of(movie3, movie2, movie1)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
@@ -198,7 +199,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetAllMoviesSortByPriceAsc() throws Exception {
-        var result = getMoviesByUrl("/movies?sort=price&direction=asc");
+        var result = getMoviesByUrl(MOVIES_PATH + "?sort=price&direction=asc");
 
         assertEquals(3, result.size());
         assertThat(List.of(movie3, movie2, movie1)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
@@ -206,7 +207,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetAllMoviesSortByRatingDesc() throws Exception {
-        var result = getMoviesByUrl("/movies?sort=rating&direction=desc");
+        var result = getMoviesByUrl(MOVIES_PATH + "?sort=rating&direction=desc");
 
         assertEquals(3, result.size());
         assertThat(List.of(movie3, movie1, movie2)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
@@ -214,14 +215,14 @@ class MovieControllerITest {
 
     @Test
     void shouldGetAllMoviesSortByRatingAsc() throws Exception {
-        var result = getMoviesByUrl("/movies?sort=rating&direction=ASC");
+        var result = getMoviesByUrl(MOVIES_PATH + "?sort=rating&direction=ASC");
         assertEquals(3, result.size());
         assertThat(List.of(movie3, movie1, movie2)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
     }
 
     @Test
     void shouldGetOneMovie() throws Exception {
-        var result = getMoviesByUrl("/movies?size=1&page=1");
+        var result = getMoviesByUrl(MOVIES_PATH + "?size=1&page=1");
 
         assertEquals(1, result.size());
         assertThat(movie2).usingRecursiveComparison().ignoringFields("id").isEqualTo(result.get(0));
@@ -229,7 +230,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetRandomMovies() throws Exception {
-        var result = objectMapper.readValue(mockMvc.perform(get("/movies/random"))
+        var result = objectMapper.readValue(mockMvc.perform(get(MOVIES_PATH + "/random"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
@@ -238,7 +239,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetMoviesByGenre() throws Exception {
-        var result = objectMapper.readValue(mockMvc.perform(get("/movies/genre/3"))
+        var result = objectMapper.readValue(mockMvc.perform(get(MOVIES_PATH + "/genre/3"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
@@ -248,7 +249,7 @@ class MovieControllerITest {
 
     @Test
     void shouldGetMoviesByNotExistingGenre() throws Exception {
-        var result = objectMapper.readValue(mockMvc.perform(get("/movies/genre/4"))
+        var result = objectMapper.readValue(mockMvc.perform(get(MOVIES_PATH + "/genre/4"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 

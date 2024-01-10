@@ -6,7 +6,6 @@ import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.spring.api.DBRider;
 import com.sotska.entity.Genre;
 import com.sotska.cache.GenreCache;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +24,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DBRider
+@DataSet(value = "datasets/movie/dataset_genres.yml",
+        cleanAfter = true, cleanBefore = true, skipCleaningFor = "flyway_schema_history")
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Testcontainers
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class GenreControllerITest {
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private GenreCache genreCache;
+
+    @Autowired
+    private MockMvc mockMvc;
 
     public static final TypeReference<List<Genre>> VALUE_TYPE = new TypeReference<>() {
     };
@@ -49,31 +59,21 @@ class GenreControllerITest {
             .name("drama")
             .build();
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private GenreCache genreCache;
-
-    @Before
-    public void setUp() {
-        genreCache.updateData();
-    }
-
     @Test
-    @DataSet(value = "datasets/movie/dataset_genres.yml", cleanAfter = true, cleanBefore = true, skipCleaningFor = "flyway_schema_history")
-    void shouldGetAllGenres() throws Exception {
-        var result = getGenresByUrl("/genres");
+    void shouldGetAllGenresFromCache() throws Exception {
+        var firstResult = getGenres();
 
-        assertEquals(3, result.size());
-        assertThat(List.of(western, horror, drama)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
+        genreCache.updateData();
+
+        var secondResult = getGenres();
+
+        assertEquals(0, firstResult.size());
+        assertEquals(3, secondResult.size());
+        assertThat(List.of(western, horror, drama)).usingRecursiveComparison().ignoringFields("id").isEqualTo(secondResult);
     }
 
-    private List<Genre> getGenresByUrl(String url) throws Exception {
-        var json = mockMvc.perform(get(url))
+    private List<Genre> getGenres() throws Exception {
+        var json = mockMvc.perform(get("/v1/genres"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 

@@ -25,6 +25,9 @@ class MovieServiceTest {
     @MockBean
     private MovieRepository movieRepository;
 
+    @MockBean
+    private CurrencyRateService currencyRateService;
+
     @Autowired
     private MovieService movieService;
 
