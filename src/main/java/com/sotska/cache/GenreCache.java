@@ -17,16 +17,18 @@ import java.util.concurrent.TimeUnit;
 public class GenreCache {
 
     private final GenreRepository genreRepository;
-    private List<Genre> cashedGenres;
+    private List<Genre> cachedGenres;
 
     public List<Genre> findAll() {
-        return cashedGenres;
+        return cachedGenres;
     }
 
     @PostConstruct
-    @Scheduled(fixedDelayString = "${cache.time-to-live.genre}", timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedDelayString = "${cache.time-to-live.genre}", initialDelayString = "${cache.time-to-live.genre}",
+            timeUnit = TimeUnit.HOURS)
     public void updateData() {
-        cashedGenres = genreRepository.findAll();
+        cachedGenres = genreRepository.findAll();
         log.info("Genres was updated.");
     }
 }
+

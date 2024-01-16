@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.sotska.entity.Currency.USD;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +91,7 @@ class MovieServiceTest {
     void shouldGetMovieById() {
         var movieId = 3L;
 
-        when(movieRepository.findById(movieId)).thenReturn(movie3);
+        when(movieRepository.findById(movieId)).thenReturn(Optional.of(movie3));
 
         var result = movieService.getById(movieId, USD);
 
@@ -121,12 +122,12 @@ class MovieServiceTest {
         var movies = List.of(movie2, movie3);
         var genreId = 2L;
 
-        when(movieRepository.findByGenres_Id(genreId)).thenReturn(movies);
+        when(movieRepository.findByGenres(genreId)).thenReturn(movies);
         var result = movieService.getMoviesByGenre(genreId);
 
         assertThat(result).isNotNull().isEqualTo(movies);
 
-        verify(movieRepository).findByGenres_Id(genreId);
+        verify(movieRepository).findByGenres(genreId);
         verifyNoMoreInteractions(movieRepository);
     }
 }

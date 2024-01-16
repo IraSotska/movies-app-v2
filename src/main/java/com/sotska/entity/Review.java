@@ -1,6 +1,7 @@
 package com.sotska.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
@@ -12,9 +13,12 @@ import lombok.*;
 public class Review {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    @NonNull
+    private Long movieId;
 
+    @NotBlank
     private String text;
 }

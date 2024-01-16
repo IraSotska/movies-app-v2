@@ -58,19 +58,19 @@ class MovieControllerITest {
 
     private static final Review review1 = Review.builder()
             .id(1L)
-            .userId(1L)
+            .movieId(1L)
             .text("review")
             .build();
 
     private static final Review review2 = Review.builder()
             .id(2L)
-            .userId(1L)
+            .movieId(1L)
             .text("review2")
             .build();
 
     private static final Review review3 = Review.builder()
             .id(3L)
-            .userId(1L)
+            .movieId(1L)
             .text("review3")
             .build();
     private static final String MOVIES_PATH = "/v1/movies";

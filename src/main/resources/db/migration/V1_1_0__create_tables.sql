@@ -23,10 +23,10 @@ CREATE TABLE country
 
 CREATE TABLE users
 (
-    id       SERIAL primary key,
-    email    VARCHAR(100),
-    user_name VARCHAR(100),
-    nick_name VARCHAR(100),
+    id                 SERIAL primary key,
+    email              VARCHAR(100),
+    user_name          VARCHAR(100),
+    nick_name          VARCHAR(100),
     encrypted_password VARCHAR(100)
 );
 
@@ -46,9 +46,9 @@ CREATE TABLE movie_country
 
 CREATE TABLE review
 (
-    id      SERIAL primary key,
-    user_id SERIAL REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    text    VARCHAR(1000)
+    id       SERIAL primary key,
+    movie_id  SERIAL REFERENCES movie (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    text     VARCHAR(1000)
 );
 
 CREATE TABLE movie_review

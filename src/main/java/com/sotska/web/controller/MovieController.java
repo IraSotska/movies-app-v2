@@ -3,6 +3,8 @@ package com.sotska.controller;
 import com.sotska.entity.Currency;
 import com.sotska.entity.Movie;
 import com.sotska.service.MovieService;
+import com.sotska.web.dto.CreateMovieDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,5 +44,11 @@ public class MovieController {
     public List<Movie> getMoviesByGenre(@PathVariable Long genreId) {
         log.info("Requested to get all movies by genre id: {}.", genreId);
         return movieService.getMoviesByGenre(genreId);
+    }
+
+    @PostMapping
+    public void create(@RequestBody @Valid CreateMovieDto createMovieDto) {
+        log.info("Requested to create movie: {}.", createMovieDto);
+        movieService.create(createMovieDto);
     }
 }

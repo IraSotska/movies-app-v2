@@ -1,12 +1,12 @@
 REVIEW:
   - id: 1
-    user_id: 1
+    movie_id: 1
     text: "review"
 
   - id: 2
-    user_id: 1
+    movie_id: 1
     text: "review2"
 
   - id: 3
-    user_id: 1
+    movie_id: 1
     text: "review3"
