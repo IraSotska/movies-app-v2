@@ -24,23 +24,23 @@ public class Movie {
     private Double price;
     private String picturePath;
 
-    @ManyToMany(cascade = {CascadeType.ALL}, targetEntity = Country.class)
+    @OneToMany(cascade = {CascadeType.ALL}, targetEntity = MovieCountry.class)
     @JoinTable(name = "movie_country",
             joinColumns = {@JoinColumn(name = "movie_id")},
             inverseJoinColumns = {@JoinColumn(name = "country_id")})
-    private List<Country> countries;
+    private List<Long> countries;
 
-    @ManyToMany(cascade = {CascadeType.ALL}, targetEntity = Review.class)
+    @OneToMany(cascade = {CascadeType.ALL}, targetEntity = Review.class)
     @JoinTable(name = "movie_review",
             joinColumns = {@JoinColumn(name = "movie_id")},
             inverseJoinColumns = {@JoinColumn(name = "review_id")})
     private List<Review> reviews;
 
-    @ManyToMany(cascade = {CascadeType.ALL}, targetEntity = Genre.class)
+    @OneToMany(cascade = {CascadeType.ALL}, targetEntity = MovieGenre.class)
     @JoinTable(name = "movie_genre",
             joinColumns = {@JoinColumn(name = "movie_id")},
             inverseJoinColumns = {@JoinColumn(name = "genre_id")})
-    private List<Genre> genres;
+    private List<Long> genres;
 
     @Override
     public boolean equals(Object o) {

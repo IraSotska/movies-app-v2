@@ -3,10 +3,8 @@ package com.sotska.service;
 import com.sotska.entity.Currency;
 import com.sotska.repository.MovieRepository;
 import com.sotska.entity.Movie;
-import com.sotska.web.dto.CreateMovieDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,8 +19,6 @@ public class MovieService {
 
     private final MovieRepository movieRepository;
     private final CurrencyRateService currencyRateService;
-
-    private final ModelMapper modelMapper;
 
     public Page<Movie> findAll(Pageable pageable) {
         return movieRepository.findAll(pageable);
@@ -45,9 +41,7 @@ public class MovieService {
         return movie;
     }
 
-    public void create(CreateMovieDto createMovieDto) {
-
-        var movie = modelMapper.map(createMovieDto, Movie.class);
+    public void create(Movie movie) {
         movieRepository.save(movie);
     }
 }

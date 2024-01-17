@@ -1,4 +1,4 @@
-package com.sotska.cache;
+package com.sotska.service.cache;
 
 import com.sotska.repository.GenreRepository;
 import com.sotska.entity.Genre;

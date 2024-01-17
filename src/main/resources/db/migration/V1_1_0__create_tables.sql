@@ -32,28 +32,31 @@ CREATE TABLE users
 
 CREATE TABLE movie_genre
 (
+    id       SERIAL primary key,
     movie_id SERIAL REFERENCES movie (id) ON UPDATE CASCADE ON DELETE CASCADE,
     genre_id SERIAL REFERENCES genre (id) ON UPDATE CASCADE,
-    CONSTRAINT movie_genre_key PRIMARY KEY (movie_id, genre_id)
+    CONSTRAINT movie_genre_key UNIQUE (movie_id, genre_id)
 );
 
 CREATE TABLE movie_country
 (
+    id         SERIAL primary key,
     movie_id   SERIAL REFERENCES movie (id) ON UPDATE CASCADE ON DELETE CASCADE,
     country_id SERIAL REFERENCES country (id) ON UPDATE CASCADE,
-    CONSTRAINT movie_country_key PRIMARY KEY (movie_id, country_id)
+    CONSTRAINT movie_country_key UNIQUE (movie_id, country_id)
 );
 
 CREATE TABLE review
 (
     id       SERIAL primary key,
-    movie_id  SERIAL REFERENCES movie (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    movie_id SERIAL REFERENCES movie (id) ON UPDATE CASCADE ON DELETE CASCADE,
     text     VARCHAR(1000)
 );
 
 CREATE TABLE movie_review
 (
+    id        SERIAL primary key,
     movie_id  SERIAL REFERENCES movie (id) ON UPDATE CASCADE ON DELETE CASCADE,
     review_id SERIAL REFERENCES genre (id) ON UPDATE CASCADE,
-    CONSTRAINT movie_review_key PRIMARY KEY (movie_id, review_id)
+    CONSTRAINT movie_review_key UNIQUE (movie_id, review_id)
 );

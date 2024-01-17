@@ -3,7 +3,6 @@ package com.sotska.controller;
 import com.sotska.entity.Currency;
 import com.sotska.entity.Movie;
 import com.sotska.service.MovieService;
-import com.sotska.web.dto.CreateMovieDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +46,8 @@ public class MovieController {
     }
 
     @PostMapping
-    public void create(@RequestBody @Valid CreateMovieDto createMovieDto) {
-        log.info("Requested to create movie: {}.", createMovieDto);
-        movieService.create(createMovieDto);
+    public void create(@RequestBody @Valid Movie movie) {
+        log.info("Requested to create movie: {}.", movie);
+        movieService.create(movie);
     }
 }

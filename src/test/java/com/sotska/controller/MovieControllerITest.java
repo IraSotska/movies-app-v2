@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import static com.sotska.entity.Currency.USD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 import org.junit.runner.RunWith;
@@ -98,9 +99,9 @@ class MovieControllerITest {
             .rating(5.6)
             .nameNative("native1")
             .yearOfRelease(1991L)
-            .genres(List.of(western))
+            .genres(List.of(western.getId()))
             .reviews(List.of(review1))
-            .countries(List.of(ITALY))
+            .countries(List.of(ITALY.getId()))
             .build();
 
     private final Movie movie2 = Movie.builder()
@@ -111,8 +112,8 @@ class MovieControllerITest {
             .rating(10.6)
             .nameNative("native2")
             .yearOfRelease(1992L)
-            .genres(List.of(drama))
-            .countries(List.of(UKRAINE))
+            .genres(List.of(drama.getId()))
+            .countries(List.of(UKRAINE.getId()))
             .reviews(List.of(review3))
             .build();
 
@@ -124,8 +125,8 @@ class MovieControllerITest {
             .rating(4.2)
             .nameNative("native3")
             .yearOfRelease(1993L)
-            .countries(List.of(AUSTRIA))
-            .genres(List.of(horror))
+            .countries(List.of(AUSTRIA.getId()))
+            .genres(List.of(horror.getId()))
             .reviews(List.of(review2))
             .build();
 
@@ -254,6 +255,27 @@ class MovieControllerITest {
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
         assertEquals(0, result.size());
+    }
+
+    @Test
+    @DataSet(value = {"datasets/movie/dataset_genres.yml", "datasets/movie/dataset_countries.yml"},
+            cleanAfter = true, cleanBefore = true, skipCleaningFor = "flyway_schema_history")
+    void shouldCreateMovie() throws Exception {
+        var movie = Movie.builder()
+                .nameUkrainian("movie2")
+                .price(2.0)
+                .picturePath("http://movieee2")
+                .rating(10.6)
+                .nameNative("native2")
+                .yearOfRelease(1992L)
+                .genres(List.of(1L))
+                .countries(List.of(1L))
+                .reviews(List.of(review3))
+                .build();
+
+        mockMvc.perform(post(MOVIES_PATH).contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(movie)))
+                .andExpect(status().isOk());
     }
 
     private List<Movie> getMoviesByUrl(String url) throws Exception {

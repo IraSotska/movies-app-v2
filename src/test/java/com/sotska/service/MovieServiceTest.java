@@ -53,7 +53,7 @@ class MovieServiceTest {
             .picturePath("http://movieee")
             .rating(5.6)
             .yearOfRelease(1991L)
-            .genres(List.of(western))
+            .genres(List.of(western.getId()))
             .build();
 
     private final Movie movie2 = Movie.builder()
@@ -62,7 +62,7 @@ class MovieServiceTest {
             .picturePath("http://movieee2")
             .rating(10.6)
             .yearOfRelease(1992L)
-            .genres(List.of(drama))
+            .genres(List.of(drama.getId()))
             .build();
 
     private final Movie movie3 = Movie.builder()
@@ -71,7 +71,7 @@ class MovieServiceTest {
             .picturePath("http://movieee3")
             .rating(4.2)
             .yearOfRelease(1993L)
-            .genres(List.of(horror))
+            .genres(List.of(horror.getId()))
             .build();
 
     @Test
