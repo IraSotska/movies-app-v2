@@ -7,11 +7,13 @@ import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.spring.api.DBRider;
 import com.sotska.entity.*;
 import com.sotska.service.CurrencyRateService;
+import com.sotska.web.dto.CreateMovieRequestDto;
 import org.junit.jupiter.api.Test;
 
 import static com.sotska.entity.Currency.USD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -19,8 +21,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
@@ -38,6 +44,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Testcontainers
 @AutoConfigureMockMvc(addFilters = false)
 class MovieControllerITest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:14-alpine");
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
 
     public static final TypeReference<List<Movie>> LIST_OF_MOVIES_TYPE = new TypeReference<>() {
     };
@@ -57,41 +73,41 @@ class MovieControllerITest {
             .name("Italy")
             .build();
 
-    private static final Review review1 = Review.builder()
+    private static final Review REVIEW_1 = Review.builder()
             .id(1L)
             .movieId(1L)
             .text("review")
             .build();
 
-    private static final Review review2 = Review.builder()
+    private static final Review REVIEW_2 = Review.builder()
             .id(2L)
             .movieId(1L)
             .text("review2")
             .build();
 
-    private static final Review review3 = Review.builder()
+    private static final Review REVIEW_3 = Review.builder()
             .id(3L)
             .movieId(1L)
             .text("review3")
             .build();
     private static final String MOVIES_PATH = "/v1/movies";
 
-    private final Genre western = Genre.builder()
+    private static final Genre WESTERN = Genre.builder()
             .id(1L)
             .name("western")
             .build();
 
-    private final Genre horror = Genre.builder()
+    private static final Genre HORROR = Genre.builder()
             .id(2L)
             .name("horror")
             .build();
 
-    private final Genre drama = Genre.builder()
+    private static final Genre DRAMA = Genre.builder()
             .id(3L)
             .name("drama")
             .build();
 
-    private final Movie movie1 = Movie.builder()
+    private static final Movie MOVIE_1 = Movie.builder()
             .id(1L)
             .nameUkrainian("movie1")
             .price(3.0)
@@ -99,12 +115,12 @@ class MovieControllerITest {
             .rating(5.6)
             .nameNative("native1")
             .yearOfRelease(1991L)
-            .genres(List.of(western.getId()))
-            .reviews(List.of(review1))
-            .countries(List.of(ITALY.getId()))
+            .genres(List.of(WESTERN))
+            .reviews(List.of(REVIEW_1))
+            .countries(List.of(ITALY))
             .build();
 
-    private final Movie movie2 = Movie.builder()
+    private static final Movie MOVIE_2 = Movie.builder()
             .id(2L)
             .nameUkrainian("movie2")
             .price(2.0)
@@ -112,12 +128,12 @@ class MovieControllerITest {
             .rating(10.6)
             .nameNative("native2")
             .yearOfRelease(1992L)
-            .genres(List.of(drama.getId()))
-            .countries(List.of(UKRAINE.getId()))
-            .reviews(List.of(review3))
+            .genres(List.of(DRAMA))
+            .countries(List.of(UKRAINE))
+            .reviews(List.of(REVIEW_3))
             .build();
 
-    private final Movie movie3 = Movie.builder()
+    private static final Movie MOVIE_3 = Movie.builder()
             .id(3L)
             .nameUkrainian("movie3")
             .price(1.0)
@@ -125,9 +141,9 @@ class MovieControllerITest {
             .rating(4.2)
             .nameNative("native3")
             .yearOfRelease(1993L)
-            .countries(List.of(AUSTRIA.getId()))
-            .genres(List.of(horror.getId()))
-            .reviews(List.of(review2))
+            .countries(List.of(AUSTRIA))
+            .genres(List.of(HORROR))
+            .reviews(List.of(REVIEW_2))
             .build();
 
     @Autowired
@@ -144,7 +160,7 @@ class MovieControllerITest {
         var result = getMoviesByUrl(MOVIES_PATH + "?page=0&size=3");
 
         assertEquals(3, result.size());
-        assertThat(List.of(movie1, movie2, movie3)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
+        assertThat(List.of(MOVIE_1, MOVIE_2, MOVIE_3)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
     }
 
     @Test
@@ -156,7 +172,7 @@ class MovieControllerITest {
         var result = objectMapper.readValue(json, new TypeReference<Movie>() {
         });
 
-        assertThat(movie2).isNotNull().isEqualTo(result);
+        assertThat(MOVIE_2).isNotNull().isEqualTo(result);
     }
 
     @Test
@@ -172,9 +188,9 @@ class MovieControllerITest {
         var result = objectMapper.readValue(json, new TypeReference<Movie>() {
         });
 
-        movie2.setPrice(movie2.getPrice() / currencyRate);
+        MOVIE_2.setPrice(MOVIE_2.getPrice() / currencyRate);
 
-        assertThat(movie2).isNotNull().isEqualTo(result);
+        assertThat(MOVIE_2).isNotNull().isEqualTo(result);
     }
 
     @Test
@@ -187,7 +203,7 @@ class MovieControllerITest {
         var result = objectMapper.readValue(json, new TypeReference<Movie>() {
         });
 
-        assertThat(movie2).isNotNull().isEqualTo(result);
+        assertThat(MOVIE_2).isNotNull().isEqualTo(result);
     }
 
     @Test
@@ -195,7 +211,7 @@ class MovieControllerITest {
         var result = getMoviesByUrl(MOVIES_PATH + "?sort=price&direction=desc");
 
         assertEquals(3, result.size());
-        assertThat(List.of(movie3, movie2, movie1)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
+        assertThat(List.of(MOVIE_3, MOVIE_2, MOVIE_1)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
     }
 
     @Test
@@ -203,7 +219,7 @@ class MovieControllerITest {
         var result = getMoviesByUrl(MOVIES_PATH + "?sort=price&direction=asc");
 
         assertEquals(3, result.size());
-        assertThat(List.of(movie3, movie2, movie1)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
+        assertThat(List.of(MOVIE_3, MOVIE_2, MOVIE_1)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
     }
 
     @Test
@@ -211,14 +227,14 @@ class MovieControllerITest {
         var result = getMoviesByUrl(MOVIES_PATH + "?sort=rating&direction=desc");
 
         assertEquals(3, result.size());
-        assertThat(List.of(movie3, movie1, movie2)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
+        assertThat(List.of(MOVIE_3, MOVIE_1, MOVIE_2)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
     }
 
     @Test
     void shouldGetAllMoviesSortByRatingAsc() throws Exception {
         var result = getMoviesByUrl(MOVIES_PATH + "?sort=rating&direction=ASC");
         assertEquals(3, result.size());
-        assertThat(List.of(movie3, movie1, movie2)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
+        assertThat(List.of(MOVIE_3, MOVIE_1, MOVIE_2)).usingRecursiveComparison().ignoringFields("id").isEqualTo(result);
     }
 
     @Test
@@ -226,7 +242,7 @@ class MovieControllerITest {
         var result = getMoviesByUrl(MOVIES_PATH + "?size=1&page=1");
 
         assertEquals(1, result.size());
-        assertThat(movie2).usingRecursiveComparison().ignoringFields("id").isEqualTo(result.get(0));
+        assertThat(MOVIE_2).usingRecursiveComparison().ignoringFields("id").isEqualTo(result.get(0));
     }
 
     @Test
@@ -245,7 +261,7 @@ class MovieControllerITest {
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
         assertEquals(1, result.size());
-        assertThat(movie2).usingRecursiveComparison().ignoringFields("id").isEqualTo(result.get(0));
+        assertThat(MOVIE_2).usingRecursiveComparison().ignoringFields("id").isEqualTo(result.get(0));
     }
 
     @Test
@@ -261,21 +277,64 @@ class MovieControllerITest {
     @DataSet(value = {"datasets/movie/dataset_genres.yml", "datasets/movie/dataset_countries.yml"},
             cleanAfter = true, cleanBefore = true, skipCleaningFor = "flyway_schema_history")
     void shouldCreateMovie() throws Exception {
-        var movie = Movie.builder()
+        var createMovieRequestDto = CreateMovieRequestDto.builder()
                 .nameUkrainian("movie2")
                 .price(2.0)
                 .picturePath("http://movieee2")
                 .rating(10.6)
                 .nameNative("native2")
                 .yearOfRelease(1992L)
-                .genres(List.of(1L))
-                .countries(List.of(1L))
-                .reviews(List.of(review3))
+                .genreIds(List.of(1L))
+                .countryIds(List.of(1L))
+                .build();
+
+        var resultMovie = objectMapper.readValue(mockMvc.perform(post(MOVIES_PATH).contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createMovieRequestDto)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString(), Movie.class);
+
+        assertNotNull(resultMovie);
+        assertEquals(List.of(WESTERN), resultMovie.getGenres());
+        assertEquals(List.of(UKRAINE), resultMovie.getCountries());
+    }
+
+    @Test
+    @DataSet(value = {"datasets/movie/dataset_genres.yml", "datasets/movie/dataset_countries.yml"},
+            cleanAfter = true, cleanBefore = true, skipCleaningFor = "flyway_schema_history")
+    void shouldThrowExceptionWhileCreateMovieIfGenreNotExist() throws Exception {
+        var createMovieRequestDto = CreateMovieRequestDto.builder()
+                .nameUkrainian("movie2")
+                .price(2.0)
+                .picturePath("http://movieee2")
+                .rating(10.6)
+                .nameNative("native2")
+                .yearOfRelease(1992L)
+                .genreIds(List.of(7L))
+                .countryIds(List.of(1L))
                 .build();
 
         mockMvc.perform(post(MOVIES_PATH).contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(movie)))
-                .andExpect(status().isOk());
+                .content(objectMapper.writeValueAsString(createMovieRequestDto)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DataSet(value = {"datasets/movie/dataset_genres.yml", "datasets/movie/dataset_countries.yml"},
+            cleanAfter = true, cleanBefore = true, skipCleaningFor = "flyway_schema_history")
+    void shouldThrowExceptionWhileCreateMovieIfCountryNotExist() throws Exception {
+        var createMovieRequestDto = CreateMovieRequestDto.builder()
+                .nameUkrainian("movie2")
+                .price(2.0)
+                .picturePath("http://movieee2")
+                .rating(10.6)
+                .nameNative("native2")
+                .yearOfRelease(1992L)
+                .genreIds(List.of(1L))
+                .countryIds(List.of(1L, 7L))
+                .build();
+
+        mockMvc.perform(post(MOVIES_PATH).contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createMovieRequestDto)))
+                .andExpect(status().isNotFound());
     }
 
     private List<Movie> getMoviesByUrl(String url) throws Exception {

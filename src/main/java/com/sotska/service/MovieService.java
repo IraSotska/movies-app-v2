@@ -1,10 +1,13 @@
 package com.sotska.service;
 
 import com.sotska.entity.Currency;
+import com.sotska.exception.MoviesException;
 import com.sotska.repository.MovieRepository;
 import com.sotska.entity.Movie;
+import com.sotska.web.dto.CreateMovieRequestDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,9 @@ public class MovieService {
 
     private final MovieRepository movieRepository;
     private final CurrencyRateService currencyRateService;
+    private final GenreService genreService;
+    private final CountryService countryService;
+    private final ModelMapper modelMapper;
 
     public Page<Movie> findAll(Pageable pageable) {
         return movieRepository.findAll(pageable);
@@ -41,7 +47,15 @@ public class MovieService {
         return movie;
     }
 
-    public void create(Movie movie) {
-        movieRepository.save(movie);
+    public Movie create(CreateMovieRequestDto createMovieRequestDto) throws MoviesException {
+
+        var genres = genreService.checkIfExistAndGetByIds(createMovieRequestDto.getGenreIds());
+        var countries = countryService.checkIfExistAndGetByIds(createMovieRequestDto.getCountryIds());
+
+        var movie = modelMapper.map(createMovieRequestDto, Movie.class);
+        movie.setGenres(genres);
+        movie.setCountries(countries);
+
+        return movieRepository.save(movie);
     }
 }

@@ -1,7 +1,5 @@
 spring:
   datasource.driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-  datasource:
-    url: jdbc:postgresql://localhost:5432/
   flyway:
     enabled: true
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
