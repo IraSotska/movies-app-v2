@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final SecurityService securityService;
+    private final SecurityContextLogoutHandler securityContextLogoutHandler;
 
     @PostMapping("/login")
     public LoginResponseDto login(@RequestBody @NonNull LoginRequestDto loginRequestDto) {
@@ -36,8 +37,7 @@ public class AuthenticationController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
+            securityContextLogoutHandler.logout(request, response, auth);
         }
-        securityService.logout(token);
     }
 }

@@ -18,6 +18,7 @@ public class MoviesException extends RuntimeException {
     }
 
     public enum ExceptionType {
-        CHILD_ENTITY_NOT_FOUND
+        CHILD_ENTITY_NOT_FOUND,
+        ENTITY_NOT_FOUND
     }
 }

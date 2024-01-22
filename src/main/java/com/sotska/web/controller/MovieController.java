@@ -5,6 +5,7 @@ import com.sotska.entity.Movie;
 import com.sotska.exception.MoviesException;
 import com.sotska.service.MovieService;
 import com.sotska.web.dto.CreateMovieRequestDto;
+import com.sotska.web.dto.UpdateMovieRequestDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 import static com.sotska.exception.MoviesException.ExceptionType.CHILD_ENTITY_NOT_FOUND;
+import static com.sotska.exception.MoviesException.ExceptionType.ENTITY_NOT_FOUND;
 
 @Slf4j
 @RestController
@@ -58,6 +60,19 @@ public class MovieController {
             return movieService.create(createMovieRequestDto);
         } catch (MoviesException e) {
             if (CHILD_ENTITY_NOT_FOUND.equals(e.getExceptionType())) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            }
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public Movie update(@RequestBody @Valid UpdateMovieRequestDto updateMovieRequestDto, @PathVariable Long id) {
+        log.info("Requested to update movie: {}.", updateMovieRequestDto);
+        try {
+            return movieService.update(updateMovieRequestDto, id);
+        } catch (MoviesException e) {
+            if (ENTITY_NOT_FOUND.equals(e.getExceptionType())) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

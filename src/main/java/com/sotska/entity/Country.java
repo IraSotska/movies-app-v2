@@ -8,6 +8,7 @@ import java.util.Objects;
 @Setter
 @Entity
 @Builder
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class Country {
@@ -17,17 +18,4 @@ public class Country {
     private Long id;
 
     private String name;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Country country = (Country) o;
-        return Objects.equals(id, country.id) && Objects.equals(name, country.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
-    }
 }

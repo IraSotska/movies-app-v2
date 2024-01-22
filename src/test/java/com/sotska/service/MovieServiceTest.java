@@ -122,12 +122,12 @@ class MovieServiceTest {
         var movies = List.of(movie2, movie3);
         var genreId = 2L;
 
-        when(movieRepository.findByGenres(genreId)).thenReturn(movies);
+        when(movieRepository.findByGenres_Id(genreId)).thenReturn(movies);
         var result = movieService.getMoviesByGenre(genreId);
 
         assertThat(result).isNotNull().isEqualTo(movies);
 
-        verify(movieRepository).findByGenres(genreId);
+        verify(movieRepository).findByGenres_Id(genreId);
         verifyNoMoreInteractions(movieRepository);
     }
 }

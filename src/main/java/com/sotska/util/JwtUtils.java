@@ -16,6 +16,7 @@ import java.util.function.Function;
 @Component
 public class JwtUtils {
     private final static String JWT_SIGN_KEY = "secret";
+    private static final String TOKEN_PREFIX = "Bearer";
 
     public String createToken(UserDetails userDetails) {
         return createToken(new HashMap<>(), userDetails);
@@ -26,7 +27,7 @@ public class JwtUtils {
                 .setSubject(userDetails.getUsername())
                 .claim("authorities", userDetails.getAuthorities())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
+                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(2)))
                 .signWith(SignatureAlgorithm.HS512, JWT_SIGN_KEY).compact();
     }
 
@@ -36,10 +37,9 @@ public class JwtUtils {
     }
 
     public Optional<String> extractToken(String token) {
-        return token != null && token.startsWith("Bearer") ?
-                Optional.of(token.substring(6)) :
+        return token != null && token.startsWith(TOKEN_PREFIX) ?
+                Optional.of(token.substring(TOKEN_PREFIX.length())) :
                 Optional.empty();
-
     }
 
     public boolean isTokenExpired(String token) {

@@ -1,6 +1,5 @@
 package com.sotska.web.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.List;
@@ -10,15 +9,10 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateMovieRequestDto {
+public class UpdateMovieRequestDto {
 
-    @NotBlank
     private String nameUkrainian;
-
-    @NotBlank
     private String nameNative;
-    private Long yearOfRelease;
-    private Double price;
     private String picturePath;
 
     @NonNull
