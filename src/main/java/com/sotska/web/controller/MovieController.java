@@ -1,4 +1,4 @@
-package com.sotska.controller;
+package com.sotska.web.controller;
 
 import com.sotska.entity.Currency;
 import com.sotska.entity.Movie;
@@ -13,13 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-import static com.sotska.exception.MoviesException.ExceptionType.CHILD_ENTITY_NOT_FOUND;
-import static com.sotska.exception.MoviesException.ExceptionType.ENTITY_NOT_FOUND;
+import static com.sotska.exception.MoviesException.ExceptionType.NOT_FOUND;
 
 @Slf4j
 @RestController
@@ -53,26 +53,28 @@ public class MovieController {
         return movieService.getMoviesByGenre(genreId);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     public Movie create(@RequestBody @Valid CreateMovieRequestDto createMovieRequestDto) {
         log.info("Requested to create movie: {}.", createMovieRequestDto);
         try {
             return movieService.create(createMovieRequestDto);
         } catch (MoviesException e) {
-            if (CHILD_ENTITY_NOT_FOUND.equals(e.getExceptionType())) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            if (NOT_FOUND.equals(e.getExceptionType())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
     public Movie update(@RequestBody @Valid UpdateMovieRequestDto updateMovieRequestDto, @PathVariable Long id) {
         log.info("Requested to update movie: {}.", updateMovieRequestDto);
         try {
             return movieService.update(updateMovieRequestDto, id);
         } catch (MoviesException e) {
-            if (ENTITY_NOT_FOUND.equals(e.getExceptionType())) {
+            if (NOT_FOUND.equals(e.getExceptionType())) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

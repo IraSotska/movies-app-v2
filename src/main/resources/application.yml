@@ -1,13 +1,10 @@
 spring:
   jpa.show-sql: true
-  datasource:
-    url: jdbc:postgresql://localhost:5432/
-    username: ira
-    password: pwd
 
-cache.time-to-live:
-  genre: 4
-  session: 2
-  currency-rates: 2
+cache:
+  time-to-live-hours:
+    genre: 4
+    session: 2
+    currency-rates: 2
 
 service.path.nbu: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange

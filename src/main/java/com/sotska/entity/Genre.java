@@ -3,8 +3,6 @@ package com.sotska.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Objects;
-
 @Getter
 @Setter
 @Entity
@@ -12,9 +10,17 @@ import java.util.Objects;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Genre {
+public class Genre implements Cloneable {
 
     @Id
     private Long id;
     private String name;
+
+    @Override
+    public Genre clone() {
+        Genre genre = new Genre();
+        genre.id = this.id;
+        genre.name = this.name;
+        return genre;
+    }
 }

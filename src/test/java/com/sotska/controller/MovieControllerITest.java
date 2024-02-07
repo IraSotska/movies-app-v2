@@ -9,6 +9,7 @@ import com.sotska.entity.*;
 import com.sotska.service.CurrencyRateService;
 import com.sotska.web.dto.CreateMovieRequestDto;
 import com.sotska.web.dto.UpdateMovieRequestDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.sotska.entity.Currency.USD;
@@ -22,18 +23,17 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
+import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @DBRider
 @DataSet(value = {"datasets/movie/dataset_user.yml", "datasets/movie/dataset_reviews.yml",
@@ -43,8 +43,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Testcontainers
+@Profile(value = {"test"})
 @AutoConfigureMockMvc(addFilters = false)
-class MovieControllerITest {
+class MovieControllerITest extends ITest {
 
     private static final double FIRST_MOVIE_PRICE = 3.0;
     private static final long FIRST_MOVIE_YEAR = 1991L;
@@ -141,24 +142,21 @@ class MovieControllerITest {
             .reviews(List.of(REVIEW_2))
             .build();
 
-    @Container
-    private static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:14-alpine");
+    @Autowired
+    private WebApplicationContext webApplicationContext;
 
-    @DynamicPropertySource
-    private static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
+    @Autowired
+    private CurrencyRateService currencyRateService;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private CurrencyRateService currencyRateService;
+    @BeforeEach
+    public void setup() {
+        mockMvc = webAppContextSetup(webApplicationContext).build();
+    }
 
     @Test
     void shouldGetAllMovies() throws Exception {
@@ -249,7 +247,8 @@ class MovieControllerITest {
     }
 
     @Test
-    void shouldGetRandomMovies() throws Exception {
+    void
+    shouldGetRandomMovies() throws Exception {
         var result = objectMapper.readValue(mockMvc.perform(get(MOVIES_PATH + "/random"))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
@@ -315,7 +314,7 @@ class MovieControllerITest {
 
         mockMvc.perform(post(MOVIES_PATH).contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createMovieRequestDto)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -334,7 +333,7 @@ class MovieControllerITest {
 
         mockMvc.perform(post(MOVIES_PATH).contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createMovieRequestDto)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

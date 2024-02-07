@@ -9,15 +9,16 @@ import com.sotska.web.dto.CreateMovieRequestDto;
 import com.sotska.web.dto.UpdateMovieRequestDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+//import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static com.sotska.entity.Currency.UAH;
-import static com.sotska.exception.MoviesException.ExceptionType.ENTITY_NOT_FOUND;
+import static com.sotska.exception.MoviesException.ExceptionType.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,6 @@ public class MovieService {
     private final CurrencyRateService currencyRateService;
     private final GenreService genreService;
     private final CountryService countryService;
-    private final ModelMapper modelMapper;
     private final MovieMapper movieMapper;
 
     public Page<Movie> findAll(Pageable pageable) {
@@ -52,22 +52,25 @@ public class MovieService {
         return movie;
     }
 
+    @Transactional
     public Movie create(CreateMovieRequestDto requestDto) throws MoviesException {
-        var movie = modelMapper.map(requestDto, Movie.class);
+        var movie = new Movie();
+        movieMapper.mergeMovieAndDto(requestDto, movie);
         enrichGenresAndCountriesByIds(movie, requestDto.getGenreIds(), requestDto.getCountryIds());
 
         return movieRepository.save(movie);
     }
 
+    @Transactional
     public Movie update(UpdateMovieRequestDto requestDto, Long id) throws MoviesException {
         var existingMovie = movieRepository.findById(id);
 
         if (existingMovie.isEmpty()) {
-            throw new MoviesException(ENTITY_NOT_FOUND, "Id " + id + " not present.");
+            throw new MoviesException(NOT_FOUND, "Id " + id + " not present.");
         }
 
         var movie = existingMovie.get();
-        movieMapper.movieFromDto(requestDto, movie);
+        movieMapper.mergeMovieAndDto(requestDto, movie);
         enrichGenresAndCountriesByIds(movie, requestDto.getGenreIds(), requestDto.getCountryIds());
 
         return movieRepository.save(movie);

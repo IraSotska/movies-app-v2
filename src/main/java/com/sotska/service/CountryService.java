@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.sotska.exception.MoviesException.ExceptionType.CHILD_ENTITY_NOT_FOUND;
+import static com.sotska.exception.MoviesException.ExceptionType.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +19,8 @@ public class CountryService {
     public List<Country> checkIfExistAndGetByIds(List<Long> ids) {
         var countries = countryRepository.findAllByIdIn(ids);
         if (ids.size() != countries.size()) {
-            throw new MoviesException(CHILD_ENTITY_NOT_FOUND, "Genre not found by one of ids: " + ids);
+            countries.stream().map(Country::getId).forEach(ids::remove);
+            throw new MoviesException(NOT_FOUND, "Country not found by ids: " + ids);
         }
         return countries;
     }

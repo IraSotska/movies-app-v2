@@ -24,7 +24,7 @@ public class Movie {
     private Double price;
     private String picturePath;
 
-    @OneToMany(cascade = CascadeType.MERGE, targetEntity = Country.class)
+    @OneToMany(cascade = CascadeType.MERGE, targetEntity = Country.class, fetch = FetchType.EAGER)
     @JoinTable(name = "movie_country",
             joinColumns = {@JoinColumn(name = "movie_id")},
             inverseJoinColumns = {@JoinColumn(name = "country_id")})

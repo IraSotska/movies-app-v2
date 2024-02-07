@@ -1,6 +1,5 @@
 package com.sotska.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sotska.entity.Currency;
@@ -10,12 +9,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.sotska.entity.Currency.EUR;
+import static com.sotska.entity.Currency.USD;
 
 @Slf4j
 @Service
@@ -27,7 +30,6 @@ public class CurrencyRateService {
     private static final String PARAMS_DETERMINER = "?";
     public static final String CURRENCY_NAME_KEY = "cc";
 
-    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
     private Map<Currency, Double> currencyRates;
@@ -39,15 +41,21 @@ public class CurrencyRateService {
         return currencyRates.get(currency);
     }
 
-    @Scheduled(fixedDelayString = "${cache.time-to-live.currency-rates}", timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedDelayString = "${cache.time-to-live-hours.currency-rates}", timeUnit = TimeUnit.HOURS)
     private void updateCurrencyRates() {
-        currencyRates = extractCurrencyRates(List.of("USD", "EUR"));
+        currencyRates = extractCurrencyRates(List.of(USD.name(), EUR.name()));
         log.info("Currency rates was updated.");
     }
 
     @SneakyThrows
     private Map<Currency, Double> extractCurrencyRates(List<String> currencies) {
-        var nbuResponse = restTemplate.getForObject(createPath(), String.class);
+        var nbuResponse = WebClient
+                .builder()
+                .build()
+                .get()
+                .uri(new URI(createPath()))
+                .retrieve()
+                .bodyToMono(String.class).block();
 
         var arrayNodes = objectMapper.readValue(nbuResponse, ArrayNode.class);
         var currencyRates = new HashMap<Currency, Double>();
@@ -57,13 +65,13 @@ public class CurrencyRateService {
             var currencyName = node.get(CURRENCY_NAME_KEY).asText();
 
             if (currencies.contains(currencyName)) {
-                currencyRates.put(Currency.valueOf(currencyName), node.get(CURRENCY_NAME_KEY).doubleValue());
+                currencyRates.put(Currency.valueOf(currencyName), node.get("rate").doubleValue());
             }
         }
         return currencyRates;
     }
 
-    private String createPath() {
+    public String createPath() {
         var date = LocalDate.now();
         var formattedDate = date.getYear() + date.format(MONTH_FORMATTER) + date.getDayOfMonth();
 

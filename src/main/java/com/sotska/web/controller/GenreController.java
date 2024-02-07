@@ -1,4 +1,4 @@
-package com.sotska.controller;
+package com.sotska.web.controller;
 
 import com.sotska.entity.Genre;
 import com.sotska.service.GenreService;

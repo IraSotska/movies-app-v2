@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.stream.Collectors.toList;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -20,11 +22,11 @@ public class GenreCache {
     private List<Genre> cachedGenres;
 
     public List<Genre> findAll() {
-        return cachedGenres;
+        return cachedGenres.stream().map(Genre::clone).collect(toList());
     }
 
     @PostConstruct
-    @Scheduled(fixedDelayString = "${cache.time-to-live.genre}", initialDelayString = "${cache.time-to-live.genre}",
+    @Scheduled(fixedDelayString = "${cache.time-to-live-hours.genre}", initialDelayString = "${cache.time-to-live-hours.genre}",
             timeUnit = TimeUnit.HOURS)
     public void updateData() {
         cachedGenres = genreRepository.findAll();

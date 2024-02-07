@@ -34,26 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc(addFilters = false)
-class GenreControllerITest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:14-alpine");
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private GenreCache genreCache;
-
-    @Autowired
-    private MockMvc mockMvc;
+class GenreControllerITest extends ITest {
 
     public static final TypeReference<List<Genre>> VALUE_TYPE = new TypeReference<>() {
     };
@@ -73,12 +54,17 @@ class GenreControllerITest {
             .name("drama")
             .build();
 
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
+
     @Test
     void shouldGetAllGenresFromCache() throws Exception {
         var firstResult = getGenres();
 
-        genreCache.updateData();
-
+//todo PostConstruct before fill db
         var secondResult = getGenres();
 
         assertEquals(0, firstResult.size());

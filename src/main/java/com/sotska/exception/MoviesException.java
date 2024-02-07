@@ -5,12 +5,7 @@ import lombok.Getter;
 @Getter
 public class MoviesException extends RuntimeException {
 
-    private ExceptionType exceptionType;
-
-    public MoviesException(ExceptionType exceptionType, String message, Throwable cause) {
-        super(message, cause);
-        this.exceptionType  = exceptionType;
-    }
+    private final ExceptionType exceptionType;
 
     public MoviesException(ExceptionType exceptionType, String message) {
         super(message);
@@ -18,7 +13,6 @@ public class MoviesException extends RuntimeException {
     }
 
     public enum ExceptionType {
-        CHILD_ENTITY_NOT_FOUND,
-        ENTITY_NOT_FOUND
+        NOT_FOUND
     }
 }

@@ -17,9 +17,11 @@ public interface MovieRepository extends PagingAndSortingRepository<Movie, Long>
 
     Page<Movie> findAll(Pageable pageable);
 
+    //todo query
     List<Movie> findByGenres_Id(Long genreId);
-
-    @Query(value = "SELECT * FROM movie ORDER BY RANDOM() LIMIT 3", nativeQuery = true)
+    @Query(value = "SELECT movie FROM Movie movie JOIN FETCH movie.countries countries"
+//            " ORDER BY RANDOM() LIMIT 3"
+            , nativeQuery = true)
     List<Movie> getRandomMovies();
 
     Optional<Movie> findById(Long movieId);
