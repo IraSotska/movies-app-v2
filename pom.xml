@@ -14,21 +14,6 @@
         <testcontainers.version>1.17.3</testcontainers.version>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>9.1.2</version>
-                <configuration>
-                    <url>jdbc:postgresql://localhost:5432/</url>
-                    <user>ira</user>
-                    <password>pwd</password>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>

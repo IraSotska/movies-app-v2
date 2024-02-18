@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,11 +16,9 @@ public interface MovieRepository extends PagingAndSortingRepository<Movie, Long>
 
     Page<Movie> findAll(Pageable pageable);
 
-    //todo query
     List<Movie> findByGenres_Id(Long genreId);
-    @Query(value = "SELECT movie FROM Movie movie JOIN FETCH movie.countries countries"
-//            " ORDER BY RANDOM() LIMIT 3"
-            , nativeQuery = true)
+
+    @Query(value = "SELECT movie FROM Movie movie ORDER BY RANDOM() LIMIT 3")
     List<Movie> getRandomMovies();
 
     Optional<Movie> findById(Long movieId);

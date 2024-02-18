@@ -14,8 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.sotska.entity.Currency.USD;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -254,6 +253,14 @@ class MovieControllerITest extends ITest {
                 .andReturn().getResponse().getContentAsString(), LIST_OF_MOVIES_TYPE);
 
         assertEquals(3, result.size());
+        for (var movie : result) {
+            assertNotNull(movie.getReviews());
+            assertFalse(movie.getReviews().isEmpty());
+            assertNotNull(movie.getCountries());
+            assertFalse(movie.getCountries().isEmpty());
+            assertNotNull(movie.getGenres());
+            assertFalse(movie.getGenres().isEmpty());
+        }
     }
 
     @Test

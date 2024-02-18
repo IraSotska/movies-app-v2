@@ -1,5 +1,10 @@
 spring:
   jpa.show-sql: true
+  flyway:
+    enabled: true
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
 cache:
   time-to-live-hours:
