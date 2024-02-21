@@ -21,5 +21,7 @@ public interface MovieRepository extends PagingAndSortingRepository<Movie, Long>
     @Query(value = "SELECT movie FROM Movie movie ORDER BY RANDOM() LIMIT 3")
     List<Movie> getRandomMovies();
 
+    @Query(value = "SELECT new Movie(movie.id, movie.nameUkrainian, movie.nameNative, movie.yearOfRelease, " +
+            "movie.rating, movie.price, movie.picturePath) FROM Movie movie WHERE movie.id =:movieId")
     Optional<Movie> findById(Long movieId);
 }

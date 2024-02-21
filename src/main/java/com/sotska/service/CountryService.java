@@ -24,4 +24,9 @@ public class CountryService {
         }
         return countries;
     }
+
+    public List<Country> findByMovieId(Long movieId) {
+        return countryRepository.findByMovieId(movieId);
+    }
+
 }

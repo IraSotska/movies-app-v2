@@ -22,6 +22,10 @@ public class GenreService {
         return genreCache.findAll();
     }
 
+    public List<Genre> findByMovieId(Long movieId) {
+        return genreRepository.findByMovieId(movieId);
+    }
+
     public List<Genre> checkIfExistAndGetByIds(List<Long> ids) {
         var genres = genreRepository.findAllByIdIn(ids);
         if (ids.size() != genres.size()) {

@@ -6,6 +6,8 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+extract.timeout.seconds: 5
+
 cache:
   time-to-live-hours:
     genre: 4

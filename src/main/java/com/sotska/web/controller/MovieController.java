@@ -44,7 +44,11 @@ public class MovieController {
     @GetMapping("/{movieId}")
     public Movie getMovieById(@PathVariable Long movieId, @RequestParam(defaultValue = "UAH") Currency currency) {
         log.info("Requested to get movie by id: {}.", movieId);
-        return movieService.getById(movieId, currency);
+        try {
+            return movieService.getById(movieId, currency);
+        } catch (MoviesException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     @GetMapping("/genre/{genreId}")
