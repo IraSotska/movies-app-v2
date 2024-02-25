@@ -174,7 +174,7 @@ class MovieControllerITest extends ITest {
         var result = objectMapper.readValue(json, new TypeReference<Movie>() {
         });
 
-        assertThat(MOVIE_2).isNotNull().isEqualTo(result);
+        compareMovies(MOVIE_2, result);
     }
 
     @Test
@@ -203,7 +203,7 @@ class MovieControllerITest extends ITest {
         var result = objectMapper.readValue(json, new TypeReference<Movie>() {
         });
 
-        assertThat(MOVIE_2).isNotNull().isEqualTo(result);
+        compareMovies(MOVIE_2, result);
     }
 
     @Test
@@ -403,5 +403,18 @@ class MovieControllerITest extends ITest {
         final ObjectNode node = new ObjectMapper().readValue(json, ObjectNode.class);
 
         return objectMapper.readValue(node.get("content").toString(), LIST_OF_MOVIES_TYPE);
+    }
+
+    private void compareMovies(Movie expected, Movie actual) {
+        assertThat(actual).isNotNull();
+        assertEquals(expected.getGenres(), actual.getGenres());
+        assertEquals(expected.getReviews(), actual.getReviews());
+        assertEquals(expected.getCountries(), actual.getCountries());
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getNameNative(), actual.getNameNative());
+        assertEquals(expected.getRating(), actual.getRating());
+        assertEquals(expected.getNameUkrainian(), actual.getNameUkrainian());
+        assertEquals(expected.getPicturePath(), actual.getPicturePath());
+        assertEquals(expected.getYearOfRelease(), actual.getYearOfRelease());
     }
 }

@@ -24,17 +24,6 @@ public class Movie {
     private Double price;
     private String picturePath;
 
-    public Movie(Long id, String nameUkrainian, String nameNative, Long yearOfRelease, Double rating, Double price,
-                 String picturePath) {
-        this.id = id;
-        this.nameUkrainian = nameUkrainian;
-        this.nameNative = nameNative;
-        this.yearOfRelease = yearOfRelease;
-        this.rating = rating;
-        this.price = price;
-        this.picturePath = picturePath;
-    }
-
     @OneToMany(cascade = CascadeType.MERGE, targetEntity = Country.class, fetch = FetchType.EAGER)
     @JoinTable(name = "movie_country",
             joinColumns = {@JoinColumn(name = "movie_id")},

@@ -4,9 +4,9 @@ import com.sotska.entity.*;
 import com.sotska.exception.MoviesException;
 import com.sotska.mapper.MovieMapper;
 import com.sotska.repository.MovieRepository;
+import com.sotska.service.cache.MovieCache;
 import com.sotska.web.dto.CreateMovieRequestDto;
 import com.sotska.web.dto.UpdateMovieRequestDto;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -33,6 +33,7 @@ public class MovieService {
     private final ReviewService reviewService;
     private final MovieMapper movieMapper;
     private final ExecutorService executorService;
+    private final MovieCache movieCache;
 
     @Value("${extract.timeout.seconds}")
     private Integer timeout;
@@ -50,7 +51,7 @@ public class MovieService {
     }
 
     public Movie getById(Long movieId, Currency currency) throws MoviesException {
-        var movie = movieRepository.findById(movieId).orElseThrow(EntityNotFoundException::new);
+        var movie = movieCache.getById(movieId);
 
         enrichMovieByGenresReviewsCountries(movieId, movie);
 
