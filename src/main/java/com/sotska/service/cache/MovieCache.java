@@ -1,9 +1,12 @@
 package com.sotska.service.cache;
 
 import com.sotska.entity.Movie;
+import com.sotska.mapper.MovieMapper;
 import com.sotska.repository.MovieRepository;
+import com.sotska.web.dto.MovieCacheDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -17,16 +20,33 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MovieCache {
 
     private final MovieRepository movieRepository;
-    private final Map<Long, SoftReference<Movie>> cachedMovies = new ConcurrentHashMap<>();
+    private final MovieMapper movieMapper;
+    private final Map<Long, SoftReference<MovieCacheDto>> cachedMovies = new ConcurrentHashMap<>();
 
+    @SneakyThrows
     public Movie getById(Long id) {
         if (cachedMovies.containsKey(id)) {
-            return cachedMovies.get(id).get();
+            var movie = new Movie();
+            movieMapper.mergeMovieCacheDtoIntoMovie(movie, cachedMovies.get(id).get());
+            return movie;
         }
         var movie = movieRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        var movieCacheDto = new MovieCacheDto();
+        movieMapper.mergeMovieIntoMovieCacheDto(movieCacheDto, movie);
         log.info("Movie with id: {} added to cache", id);
-        cachedMovies.put(id, new SoftReference<>(movie));
-        return movie;
+        cachedMovies.put(id, new SoftReference<>(movieCacheDto));
+        return movie.clone();
+    }
+
+    public void update(Movie movie) {
+        var movieId = movie.getId();
+
+        if (!cachedMovies.containsKey(movieId)) {
+            return;
+        }
+        var movieCacheDto = new MovieCacheDto();
+        movieMapper.mergeMovieIntoMovieCacheDto(movieCacheDto, movie);
+        cachedMovies.put(movieId, new SoftReference<>(movieCacheDto));
     }
 }
 

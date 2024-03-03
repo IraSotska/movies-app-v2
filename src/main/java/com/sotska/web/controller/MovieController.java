@@ -15,11 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-
-import static com.sotska.exception.MoviesException.ExceptionType.NOT_FOUND;
 
 @Slf4j
 @RestController
@@ -44,11 +41,7 @@ public class MovieController {
     @GetMapping("/{movieId}")
     public Movie getMovieById(@PathVariable Long movieId, @RequestParam(defaultValue = "UAH") Currency currency) {
         log.info("Requested to get movie by id: {}.", movieId);
-        try {
-            return movieService.getById(movieId, currency);
-        } catch (MoviesException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        return movieService.getById(movieId, currency);
     }
 
     @GetMapping("/genre/{genreId}")
@@ -61,27 +54,18 @@ public class MovieController {
     @PostMapping
     public Movie create(@RequestBody @Valid CreateMovieRequestDto createMovieRequestDto) {
         log.info("Requested to create movie: {}.", createMovieRequestDto);
-        try {
-            return movieService.create(createMovieRequestDto);
-        } catch (MoviesException e) {
-            if (NOT_FOUND.equals(e.getExceptionType())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-            }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        return movieService.create(createMovieRequestDto);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
     public Movie update(@RequestBody @Valid UpdateMovieRequestDto updateMovieRequestDto, @PathVariable Long id) {
         log.info("Requested to update movie: {}.", updateMovieRequestDto);
-        try {
-            return movieService.update(updateMovieRequestDto, id);
-        } catch (MoviesException e) {
-            if (NOT_FOUND.equals(e.getExceptionType())) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-            }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        return movieService.update(updateMovieRequestDto, id);
+    }
+
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = MoviesException.class)
+    public void handle() {
     }
 }

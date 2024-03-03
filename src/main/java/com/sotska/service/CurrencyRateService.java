@@ -19,18 +19,18 @@ import java.util.concurrent.TimeUnit;
 
 import static com.sotska.entity.Currency.EUR;
 import static com.sotska.entity.Currency.USD;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CurrencyRateService {
 
-    private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MM");
-    private static final String AND_DETERMINER = "&";
-    private static final String PARAMS_DETERMINER = "?";
+    private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     public static final String CURRENCY_NAME_KEY = "cc";
 
     private final ObjectMapper objectMapper;
+    private final WebClient webClient;
 
     private Map<Currency, Double> currencyRates;
 
@@ -43,45 +43,49 @@ public class CurrencyRateService {
 
     @Scheduled(fixedDelayString = "${cache.time-to-live-hours.currency-rates}", timeUnit = TimeUnit.HOURS)
     private void updateCurrencyRates() {
-        currencyRates = extractCurrencyRates(List.of(USD.name(), EUR.name()));
+        currencyRates = extractCurrencyRates(List.of(USD, EUR));
         log.info("Currency rates was updated.");
     }
 
     @SneakyThrows
-    private Map<Currency, Double> extractCurrencyRates(List<String> currencies) {
-        var nbuResponse = WebClient
-                .builder()
-                .build()
+    private Map<Currency, Double> extractCurrencyRates(List<Currency> currencies) {
+
+        var nbuResponse = webClient
                 .get()
                 .uri(new URI(createPath()))
                 .retrieve()
                 .bodyToMono(String.class).block();
 
-        var arrayNodes = objectMapper.readValue(nbuResponse, ArrayNode.class);
-        var currencyRates = new HashMap<Currency, Double>();
-
-        for (var iterator = arrayNodes.elements(); iterator.hasNext(); ) {
-            var node = iterator.next();
-            var currencyName = node.get(CURRENCY_NAME_KEY).asText();
-
-            if (currencies.contains(currencyName)) {
-                currencyRates.put(Currency.valueOf(currencyName), node.get("rate").doubleValue());
-            }
-        }
+        HashMap<Currency, Double> currencyRates = extractCurrencies(currencies, nbuResponse);
         return currencyRates;
     }
 
     public String createPath() {
         var date = LocalDate.now();
-        var formattedDate = date.getYear() + date.format(MONTH_FORMATTER) + date.getDayOfMonth();
+        // NBU return next day currencies after 6 PM
+        var formattedDate = date.format(MONTH_FORMATTER);
 
         var pathBuilder = new StringBuilder(nbuPath);
-        pathBuilder.append(PARAMS_DETERMINER);
-        pathBuilder.append("date=");
+        pathBuilder.append("?date=");
         pathBuilder.append(formattedDate);
-        pathBuilder.append(AND_DETERMINER);
-        pathBuilder.append("json");
+        pathBuilder.append("&json");
 
         return pathBuilder.toString();
+    }
+
+    protected HashMap<Currency, Double> extractCurrencies(List<Currency> currencies, String nbuResponse) throws com.fasterxml.jackson.core.JsonProcessingException {
+        var arrayNodes = objectMapper.readValue(nbuResponse, ArrayNode.class);
+        var currencyRates = new HashMap<Currency, Double>();
+        var currenciesAsString = currencies.stream().map(Enum::name).collect(toList());
+
+        for (var iterator = arrayNodes.elements(); iterator.hasNext(); ) {
+            var node = iterator.next();
+
+            var currencyName = node.get(CURRENCY_NAME_KEY).asText();
+            if (currenciesAsString.contains(currencyName)) {
+                currencyRates.put(Currency.valueOf(currencyName), node.get("rate").doubleValue());
+            }
+        }
+        return currencyRates;
     }
 }

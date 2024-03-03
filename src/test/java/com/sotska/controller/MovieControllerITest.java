@@ -392,7 +392,7 @@ class MovieControllerITest extends ITest {
         mockMvc.perform(put(MOVIES_PATH + "/1")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateMovieRequestDto)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     private List<Movie> getMoviesByUrl(String url) throws Exception {

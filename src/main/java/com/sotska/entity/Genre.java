@@ -17,10 +17,7 @@ public class Genre implements Cloneable {
     private String name;
 
     @Override
-    public Genre clone() {
-        Genre genre = new Genre();
-        genre.id = this.id;
-        genre.name = this.name;
-        return genre;
+    public Genre clone() throws CloneNotSupportedException {
+        return (Genre) super.clone();
     }
 }

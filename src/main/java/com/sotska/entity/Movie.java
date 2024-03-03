@@ -12,7 +12,7 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Movie {
+public class Movie implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,4 +41,9 @@ public class Movie {
             joinColumns = {@JoinColumn(name = "movie_id")},
             inverseJoinColumns = {@JoinColumn(name = "genre_id")})
     private List<Genre> genres;
+
+    @Override
+    public Movie clone() throws CloneNotSupportedException {
+        return (Movie) super.clone();
+    }
 }

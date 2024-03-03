@@ -13,7 +13,6 @@ public class MoviesException extends RuntimeException {
     }
 
     public enum ExceptionType {
-        NOT_FOUND,
-        TIMEOUT
+        NOT_FOUND
     }
 }

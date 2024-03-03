@@ -2,16 +2,15 @@ package com.sotska.service.cache;
 
 import com.sotska.repository.GenreRepository;
 import com.sotska.entity.Genre;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Component
@@ -21,11 +20,15 @@ public class GenreCache {
     private final GenreRepository genreRepository;
     private List<Genre> cachedGenres;
 
+    @SneakyThrows
     public List<Genre> findAll() {
-        return cachedGenres.stream().map(Genre::clone).collect(toList());
+        var genresCopy = new ArrayList<Genre>();
+        for (var genre : cachedGenres) {
+            genresCopy.add(genre.clone());
+        }
+        return genresCopy;
     }
 
-    @PostConstruct
     @Scheduled(fixedDelayString = "${cache.time-to-live-hours.genre}", initialDelayString = "${cache.time-to-live-hours.genre}",
             timeUnit = TimeUnit.HOURS)
     public void updateData() {

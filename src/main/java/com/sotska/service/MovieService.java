@@ -8,19 +8,16 @@ import com.sotska.service.cache.MovieCache;
 import com.sotska.web.dto.CreateMovieRequestDto;
 import com.sotska.web.dto.UpdateMovieRequestDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.concurrent.*;
 
 import static com.sotska.entity.Currency.UAH;
 import static com.sotska.exception.MoviesException.ExceptionType.NOT_FOUND;
-import static com.sotska.exception.MoviesException.ExceptionType.TIMEOUT;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static com.sotska.service.MovieEnrichmentService.MovieEnrichType.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,13 +27,9 @@ public class MovieService {
     private final CurrencyRateService currencyRateService;
     private final GenreService genreService;
     private final CountryService countryService;
-    private final ReviewService reviewService;
     private final MovieMapper movieMapper;
-    private final ExecutorService executorService;
     private final MovieCache movieCache;
-
-    @Value("${extract.timeout.seconds}")
-    private Integer timeout;
+    private final MovieEnrichmentService parallelMovieEnrichmentService;
 
     public Page<Movie> findAll(Pageable pageable) {
         return movieRepository.findAll(pageable);
@@ -53,7 +46,7 @@ public class MovieService {
     public Movie getById(Long movieId, Currency currency) throws MoviesException {
         var movie = movieCache.getById(movieId);
 
-        enrichMovieByGenresReviewsCountries(movieId, movie);
+        parallelMovieEnrichmentService.enrichMovie(movie, GENRES, REVIEWS, COUNTRIES);
 
         if (!UAH.equals(currency)) {
             var rate = currencyRateService.getCurrencyRate(currency);
@@ -65,14 +58,14 @@ public class MovieService {
     @Transactional
     public Movie create(CreateMovieRequestDto requestDto) throws MoviesException {
         var movie = new Movie();
-        movieMapper.mergeMovieAndDto(requestDto, movie);
+        movieMapper.mergeMovieIntoCreateMovieRequestDto(requestDto, movie);
         enrichGenresAndCountriesByIds(movie, requestDto.getGenreIds(), requestDto.getCountryIds());
 
         return movieRepository.save(movie);
     }
 
     @Transactional
-    public Movie update(UpdateMovieRequestDto requestDto, Long id) throws MoviesException {
+    public Movie update(UpdateMovieRequestDto requestDto, Long id) {
         var existingMovie = movieRepository.findById(id);
 
         if (existingMovie.isEmpty()) {
@@ -80,8 +73,9 @@ public class MovieService {
         }
 
         var movie = existingMovie.get();
-        movieMapper.mergeMovieAndDto(requestDto, movie);
+        movieMapper.mergeMovieIntoUpdateMovieRequestDto(requestDto, movie);
         enrichGenresAndCountriesByIds(movie, requestDto.getGenreIds(), requestDto.getCountryIds());
+        movieCache.update(movie);
 
         return movieRepository.save(movie);
     }
@@ -89,22 +83,5 @@ public class MovieService {
     private void enrichGenresAndCountriesByIds(Movie movie, List<Long> genreIds, List<Long> countryIds) {
         movie.setGenres(genreService.checkIfExistAndGetByIds(genreIds));
         movie.setCountries(countryService.checkIfExistAndGetByIds(countryIds));
-    }
-
-    private void enrichMovieByGenresReviewsCountries(Long movieId, Movie movie) {
-        var getGenresTaskResult = executorService.submit(() -> genreService.findByMovieId(movieId));
-        var getCountriesTaskResult = executorService.submit(() -> countryService.findByMovieId(movieId));
-        var getReviewsTaskResult = executorService.submit(() -> reviewService.findByMovieId(movieId));
-
-        try {
-            movie.setGenres(getGenresTaskResult.get(timeout, SECONDS));
-            movie.setCountries(getCountriesTaskResult.get(timeout, SECONDS));
-            movie.setReviews(getReviewsTaskResult.get(timeout, SECONDS));
-        } catch (TimeoutException | InterruptedException | ExecutionException e) {
-            getGenresTaskResult.cancel(true);
-            getCountriesTaskResult.cancel(true);
-            getReviewsTaskResult.cancel(true);
-            throw new MoviesException(TIMEOUT, "Can't get movie by id: " + movieId);
-        }
     }
 }
