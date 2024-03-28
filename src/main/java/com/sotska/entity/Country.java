@@ -2,8 +2,6 @@ package com.sotska.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Objects;
-
 @Getter
 @Setter
 @Entity
@@ -11,11 +9,16 @@ import java.util.Objects;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Country {
+public class Country implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
+
+    @Override
+    public Country clone() throws CloneNotSupportedException {
+        return (Country) super.clone();
+    }
 }

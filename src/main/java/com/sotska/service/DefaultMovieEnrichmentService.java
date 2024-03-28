@@ -1,6 +1,7 @@
 package com.sotska.service;
 
 import com.sotska.entity.Movie;
+import com.sotska.web.dto.MovieCacheDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ public class DefaultMovieEnrichmentService implements MovieEnrichmentService {
     private final ReviewService reviewService;
 
     @Override
-    public void enrichMovie(Movie movie, MovieEnrichType... movieEnrichTypes) {
+    public void enrichMovie(MovieCacheDto movie, MovieEnrichType... movieEnrichTypes) {
         var movieId = movie.getId();
         var types = Arrays.stream(movieEnrichTypes).toList();
 

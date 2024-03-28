@@ -16,12 +16,7 @@ public interface MovieMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void mergeMovieIntoUpdateMovieRequestDto(UpdateMovieRequestDto dto, @MappingTarget Movie entity);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void mergeMovieIntoCreateMovieRequestDto(CreateMovieRequestDto dto, @MappingTarget Movie entity);
+    Movie toMovie(CreateMovieRequestDto dto);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void mergeMovieIntoMovieCacheDto(@MappingTarget MovieCacheDto dto, Movie entity);
-
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void mergeMovieCacheDtoIntoMovie(@MappingTarget Movie dto, MovieCacheDto entity);
+    MovieCacheDto toMovieCacheDto(Movie entity);
 }

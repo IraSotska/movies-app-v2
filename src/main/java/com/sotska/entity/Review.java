@@ -11,7 +11,7 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Review {
+public class Review implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +22,9 @@ public class Review {
 
     @NotBlank
     private String text;
+
+    @Override
+    public Review clone() throws CloneNotSupportedException {
+        return (Review) super.clone();
+    }
 }

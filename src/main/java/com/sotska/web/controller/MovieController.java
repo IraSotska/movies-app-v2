@@ -5,6 +5,7 @@ import com.sotska.entity.Movie;
 import com.sotska.exception.MoviesException;
 import com.sotska.service.MovieService;
 import com.sotska.web.dto.CreateMovieRequestDto;
+import com.sotska.web.dto.MovieCacheDto;
 import com.sotska.web.dto.UpdateMovieRequestDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class MovieController {
     }
 
     @GetMapping("/{movieId}")
-    public Movie getMovieById(@PathVariable Long movieId, @RequestParam(defaultValue = "UAH") Currency currency) {
+    public MovieCacheDto getMovieById(@PathVariable Long movieId, @RequestParam(defaultValue = "UAH") Currency currency) {
         log.info("Requested to get movie by id: {}.", movieId);
         return movieService.getById(movieId, currency);
     }
