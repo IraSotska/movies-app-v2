@@ -9,6 +9,6 @@ public class TestConfig {
 
     @Bean
     public ExecutorService executorService(){
-        return Executors.newFixedThreadPool(5);
+        return Executors.newWorkStealingPool();
     }
 }

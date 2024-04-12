@@ -43,7 +43,7 @@ class ParallelMovieEnrichmentServiceTest {
     @Test
     void shouldEnrichMovie() {
         var delay = 1000;
-        parallelMovieEnrichmentService.setTimeout("2");
+        parallelMovieEnrichmentService.setTimeout("1");
 
         when(reviewService.findByMovieId(movieId)).thenAnswer(invocation -> {
             Thread.sleep(delay);
@@ -73,19 +73,20 @@ class ParallelMovieEnrichmentServiceTest {
 
     @Test
     void shouldNotEnrichMovie() {
-        var delay = 3000;
-        parallelMovieEnrichmentService.setTimeout("2");
+        var longerDelay = 2000;
+
+        parallelMovieEnrichmentService.setTimeout("1");
 
         when(reviewService.findByMovieId(movieId)).thenAnswer(invocation -> {
-            Thread.sleep(delay);
+            Thread.sleep(longerDelay);
             return REVIEWS;
         });
         when(countryService.findByMovieId(movieId)).thenAnswer(invocation -> {
-            Thread.sleep(delay);
+            Thread.sleep(longerDelay);
             return COUNTRIES;
         });
         when(genreService.findByMovieId(movieId)).thenAnswer(invocation -> {
-            Thread.sleep(delay);
+            Thread.sleep(longerDelay);
             return GENRES;
         });
 
@@ -100,10 +101,10 @@ class ParallelMovieEnrichmentServiceTest {
 
     @Test
     void shouldPartlyEnrichMovie() {
-        var delay = 1000;
-        var longerDelay = 3000;
+        var delay = 800;
+        var longerDelay = 2000;
 
-        parallelMovieEnrichmentService.setTimeout("2");
+        parallelMovieEnrichmentService.setTimeout("1");
 
         when(reviewService.findByMovieId(movieId)).thenAnswer(invocation -> {
             Thread.sleep(delay);
@@ -125,7 +126,6 @@ class ParallelMovieEnrichmentServiceTest {
         assertNotNull(movie.getReviews());
         assertNull(movie.getCountries());
         assertNull(movie.getGenres());
-
         assertEquals(REVIEWS, movie.getReviews());
     }
 }

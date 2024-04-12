@@ -1,7 +1,8 @@
 package com.sotska.service.cache;
 
+import com.sotska.mapper.GenreMapper;
 import com.sotska.repository.GenreRepository;
-import com.sotska.entity.Genre;
+import com.sotska.web.dto.GenreCacheDto;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -12,19 +13,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.stream.Collectors.toList;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class GenreCache {
 
     private final GenreRepository genreRepository;
-    private List<Genre> cachedGenres;
+    private final GenreMapper genreMapper;
+    private List<GenreCacheDto> cachedGenres;
 
     @SneakyThrows
-    public List<Genre> findAll() {
-        var genresCopy = new ArrayList<Genre>();
+    public List<GenreCacheDto> findAll() {
+        var genresCopy = new ArrayList<GenreCacheDto>();
         for (var genre : cachedGenres) {
-            genresCopy.add(genre.clone());
+            genresCopy.add(genre);
         }
         return genresCopy;
     }
@@ -32,7 +36,10 @@ public class GenreCache {
     @Scheduled(fixedDelayString = "${cache.time-to-live-hours.genre}", initialDelayString = "${cache.time-to-live-hours.genre}",
             timeUnit = TimeUnit.HOURS)
     public void updateData() {
-        cachedGenres = genreRepository.findAll();
+        var genres = genreRepository.findAll();
+
+        cachedGenres = genres.stream().map(genreMapper::toGenreCacheDto).collect(toList());
+
         log.info("Genres was updated.");
     }
 }

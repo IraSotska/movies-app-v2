@@ -11,7 +11,7 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Review implements Cloneable {
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +23,10 @@ public class Review implements Cloneable {
     @NotBlank
     private String text;
 
-    @Override
-    public Review clone() throws CloneNotSupportedException {
-        return (Review) super.clone();
+    public Review copy() {
+        var copy = new Review();
+        copy.text = text;
+        copy.movieId = movieId;
+        return copy;
     }
 }

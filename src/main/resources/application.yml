@@ -6,7 +6,7 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
-extract.timeout.seconds: 5
+extract-timeout-seconds: 5
 
 cache:
   time-to-live-hours:
@@ -14,4 +14,4 @@ cache:
     session: 2
     currency-rates: 2
 
-service.path.nbu: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange
+service-path-nbu: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange

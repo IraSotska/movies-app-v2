@@ -10,14 +10,16 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Genre implements Cloneable {
+public class Genre {
 
     @Id
     private Long id;
     private String name;
 
-    @Override
-    public Genre clone() throws CloneNotSupportedException {
-        return (Genre) super.clone();
+    public Genre copy() {
+        var copy = new Genre();
+        copy.name = name;
+        copy.id = id;
+        return copy;
     }
 }

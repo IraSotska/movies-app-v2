@@ -9,7 +9,7 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Country implements Cloneable {
+public class Country {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,8 +17,10 @@ public class Country implements Cloneable {
 
     private String name;
 
-    @Override
-    public Country clone() throws CloneNotSupportedException {
-        return (Country) super.clone();
+    public Country copy() {
+        var copy = new Country();
+        copy.name = name;
+        copy.id = id;
+        return copy;
     }
 }

@@ -4,6 +4,7 @@ import com.sotska.entity.Genre;
 import com.sotska.exception.MoviesException;
 import com.sotska.repository.GenreRepository;
 import com.sotska.service.cache.GenreCache;
+import com.sotska.web.dto.GenreCacheDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class GenreService {
     private final GenreCache genreCache;
     private final GenreRepository genreRepository;
 
-    public List<Genre> findAll() {
+    public List<GenreCacheDto> findAll() {
         return genreCache.findAll();
     }
 

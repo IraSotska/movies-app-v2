@@ -34,7 +34,7 @@ public class CurrencyRateService {
 
     private Map<Currency, Double> currencyRates;
 
-    @Value("${service.path.nbu}")
+    @Value("${service-path-nbu}")
     private String nbuPath;
 
     public Double getCurrencyRate(Currency currency) {

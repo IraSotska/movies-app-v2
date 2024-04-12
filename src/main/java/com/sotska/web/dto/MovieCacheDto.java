@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MovieCacheDto implements Cloneable {
+public class MovieCacheDto {
 
     private Long id;
     private String nameUkrainian;
@@ -28,13 +28,20 @@ public class MovieCacheDto implements Cloneable {
 
     @SneakyThrows
     public MovieCacheDto copy() {
-        var copy = (MovieCacheDto) super.clone();
+        var copy = new MovieCacheDto();
+        copy.id = id;
+        copy.nameUkrainian = nameUkrainian;
+        copy.nameNative = nameNative;
+        copy.yearOfRelease = yearOfRelease;
+        copy.rating = rating;
+        copy.price = price;
+        copy.picturePath = picturePath;
         List<Country> countriesCopy = new ArrayList<>(countries.size());
         List<Review> reviewsCopy = new ArrayList<>(reviews.size());
         List<Genre> genresCopy = new ArrayList<>(genres.size());
-        for (Country country : countries) countriesCopy.add(country.clone());
-        for (Review review : reviews) reviewsCopy.add(review.clone());
-        for (Genre genre : genres) genresCopy.add(genre.clone());
+        for (Country country : countries) countriesCopy.add(country.copy());
+        for (Review review : reviews) reviewsCopy.add(review.copy());
+        for (Genre genre : genres) genresCopy.add(genre.copy());
 
         copy.genres = genresCopy;
         copy.countries = countriesCopy;

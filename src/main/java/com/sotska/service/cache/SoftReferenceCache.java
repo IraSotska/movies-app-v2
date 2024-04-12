@@ -18,17 +18,11 @@ public class SoftReferenceCache<K, V> {
 
     @SneakyThrows
     public V getById(K id) {
-        if (cachedEntities.containsKey(id) && cachedEntities.get(id).get() == null) {
-            cachedEntities.remove(id);
-            log.info("Entity with id: " + id + " was removed from cache.");
-        }
-        return cachedEntities.computeIfAbsent(id, (id2) -> new SoftReference<>(dataProvider.apply(id2))).get();
+        return cachedEntities
+                .compute(id, (k, v) -> v == null || v.get() == null ? new SoftReference<>(dataProvider.apply(id)) : v).get();
     }
 
     public void update(K key, V value) {
-        if (!cachedEntities.containsKey(key)) {
-            return;
-        }
         cachedEntities.put(key, new SoftReference<>(value));
     }
 }
