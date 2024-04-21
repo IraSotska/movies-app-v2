@@ -1,0 +1,56 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "nameUkrainian": "movie1",
+      "nameNative": "native1",
+      "yearOfRelease": 1991,
+      "rating": 5.6,
+      "price": 3.0,
+      "picturePath": "http://movieee"
+    },
+    {
+      "id": 2,
+      "nameUkrainian": "movie2",
+      "nameNative": "native2",
+      "yearOfRelease": 1992,
+      "rating": 10.6,
+      "price": 2.0,
+      "picturePath": "http://movieee2"
+    },
+    {
+      "id": 3,
+      "nameUkrainian": "movie3",
+      "nameNative": "native3",
+      "yearOfRelease": 1993,
+      "rating": 4.2,
+      "price": 1.0,
+      "picturePath": "http://movieee3"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 3,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalElements": 3,
+  "totalPages": 1,
+  "size": 3,
+  "number": 0,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "first": true,
+  "numberOfElements": 3,
+  "empty": false
+}

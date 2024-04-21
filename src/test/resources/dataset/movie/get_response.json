@@ -1,0 +1,38 @@
+{
+  "content": [
+    {
+      "id": 2,
+      "nameUkrainian": "movie2",
+      "nameNative": "native2",
+      "yearOfRelease": 1992,
+      "rating": 10.6,
+      "price": 2.0,
+      "picturePath": "http://movieee2"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": true,
+      "unsorted": true,
+      "sorted": false
+    },
+    "offset": 1,
+    "pageNumber": 1,
+    "pageSize": 1,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalElements": 3,
+  "totalPages": 3,
+  "size": 1,
+  "number": 1,
+  "sort": {
+    "empty": true,
+    "unsorted": true,
+    "sorted": false
+  },
+  "first": false,
+  "numberOfElements": 1,
+  "empty": false
+}

@@ -1,0 +1,11 @@
+[
+  {
+    "id": 2,
+    "nameUkrainian": "movie2",
+    "nameNative": "native2",
+    "yearOfRelease": 1992,
+    "rating": 10.6,
+    "price": 2.0,
+    "picturePath": "http://movieee2"
+  }
+]

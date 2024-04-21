@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class RequestIdInterceptor implements HandlerInterceptor {
+public class LoggerInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();

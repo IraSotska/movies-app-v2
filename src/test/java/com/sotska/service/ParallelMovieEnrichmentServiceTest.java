@@ -5,6 +5,7 @@ import com.sotska.entity.Country;
 import com.sotska.entity.Genre;
 import com.sotska.entity.Review;
 import com.sotska.web.dto.MovieCacheDto;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 @Profile(value = {"unitTest"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class, ParallelMovieEnrichmentService.class})

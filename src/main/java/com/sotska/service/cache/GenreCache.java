@@ -26,11 +26,7 @@ public class GenreCache {
 
     @SneakyThrows
     public List<GenreCacheDto> findAll() {
-        var genresCopy = new ArrayList<GenreCacheDto>();
-        for (var genre : cachedGenres) {
-            genresCopy.add(genre);
-        }
-        return genresCopy;
+        return new ArrayList<>(cachedGenres);
     }
 
     @Scheduled(fixedDelayString = "${cache.time-to-live-hours.genre}", initialDelayString = "${cache.time-to-live-hours.genre}",
@@ -43,4 +39,3 @@ public class GenreCache {
         log.info("Genres was updated.");
     }
 }
-

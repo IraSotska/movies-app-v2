@@ -37,15 +37,12 @@ public class MovieCacheDto {
         copy.price = price;
         copy.picturePath = picturePath;
         List<Country> countriesCopy = new ArrayList<>(countries.size());
-        List<Review> reviewsCopy = new ArrayList<>(reviews.size());
         List<Genre> genresCopy = new ArrayList<>(genres.size());
         for (Country country : countries) countriesCopy.add(country.copy());
-        for (Review review : reviews) reviewsCopy.add(review.copy());
         for (Genre genre : genres) genresCopy.add(genre.copy());
 
         copy.genres = genresCopy;
         copy.countries = countriesCopy;
-        copy.reviews = reviewsCopy;
         return copy;
     }
 }

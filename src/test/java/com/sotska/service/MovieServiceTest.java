@@ -32,28 +32,12 @@ class MovieServiceTest {
     @Autowired
     private MovieService movieService;
 
-    private final Genre western = Genre.builder()
-            .id(1L)
-            .name("western")
-            .build();
-
-    private final Genre horror = Genre.builder()
-            .id(2L)
-            .name("horror")
-            .build();
-
-    private final Genre drama = Genre.builder()
-            .id(3L)
-            .name("drama")
-            .build();
-
     private final Movie movie1 = Movie.builder()
             .nameUkrainian("movie1")
             .price(3.0)
             .picturePath("http://movieee")
             .rating(5.6)
             .yearOfRelease(1991L)
-            .genres(List.of(western))
             .build();
 
     private final Movie movie2 = Movie.builder()
@@ -62,7 +46,6 @@ class MovieServiceTest {
             .picturePath("http://movieee2")
             .rating(10.6)
             .yearOfRelease(1992L)
-            .genres(List.of(drama))
             .build();
 
     private final Movie movie3 = Movie.builder()
@@ -71,7 +54,6 @@ class MovieServiceTest {
             .picturePath("http://movieee3")
             .rating(4.2)
             .yearOfRelease(1993L)
-            .genres(List.of(horror))
             .build();
 
     @Test

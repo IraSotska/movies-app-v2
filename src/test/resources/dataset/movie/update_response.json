@@ -1,0 +1,9 @@
+{
+  "id": 1,
+  "nameUkrainian": "new name Ukrainian",
+  "nameNative": "new name",
+  "yearOfRelease": 1991,
+  "rating": 5.6,
+  "price": 3.0,
+  "picturePath": "http://newPath"
+}

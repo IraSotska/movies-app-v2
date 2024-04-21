@@ -16,6 +16,7 @@ public interface MovieRepository extends PagingAndSortingRepository<Movie, Long>
 
     Page<Movie> findAll(Pageable pageable);
 
+    @Query(value = "SELECT movie FROM Movie movie WHERE movie.id IN (SELECT movieGenre.movieId from MovieGenre movieGenre WHERE movieGenre.genreId =:genreId)")
     List<Movie> findByGenres_Id(Long genreId);
 
     @Query(value = "SELECT movie FROM Movie movie ORDER BY RANDOM() LIMIT 3")
