@@ -1,11 +1,11 @@
 package com.sotska.web.controller;
 
-import com.sotska.entity.MovieCreate;
 import com.sotska.entity.Currency;
 import com.sotska.entity.Movie;
 import com.sotska.exception.MoviesException;
 import com.sotska.service.MovieService;
 import com.sotska.web.dto.CreateMovieRequestDto;
+import com.sotska.web.dto.CreateMovieResponseDto;
 import com.sotska.web.dto.MovieCacheDto;
 import com.sotska.web.dto.UpdateMovieRequestDto;
 import jakarta.validation.Valid;
@@ -54,14 +54,14 @@ public class MovieController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
-    public MovieCreate create(@RequestBody @Valid CreateMovieRequestDto createMovieRequestDto) {
+    public CreateMovieResponseDto create(@RequestBody @Valid CreateMovieRequestDto createMovieRequestDto) {
         log.info("Requested to create movie: {}.", createMovieRequestDto);
         return movieService.create(createMovieRequestDto);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
-    public MovieCreate update(@RequestBody @Valid UpdateMovieRequestDto updateMovieRequestDto, @PathVariable Long id) {
+    public CreateMovieResponseDto update(@RequestBody @Valid UpdateMovieRequestDto updateMovieRequestDto, @PathVariable Long id) {
         log.info("Requested to update movie: {}.", updateMovieRequestDto);
         return movieService.update(updateMovieRequestDto, id);
     }

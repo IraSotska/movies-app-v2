@@ -19,7 +19,12 @@ public class SoftReferenceCache<K, V> {
     @SneakyThrows
     public V getById(K id) {
         return cachedEntities
-                .compute(id, (k, v) -> v == null || v.get() == null ? new SoftReference<>(dataProvider.apply(id)) : v)
+                .compute(id, (k, v) -> {
+                    if (v == null || v.get() == null) {
+                        return new SoftReference<>(dataProvider.apply(id));
+                    }
+                    return v;
+                })
                 .get();
     }
 

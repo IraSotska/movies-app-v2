@@ -48,7 +48,25 @@ class ParallelMovieEnrichmentServiceTest {
         parallelMovieEnrichmentService.setTimeout("1");
 
         when(reviewService.findByMovieId(movieId)).thenAnswer(invocation -> {
-            Thread.sleep(delay);
+
+            log.info("hello");
+            long sum = 0;
+            for (long i = 0; i < 1000000000; i++) {
+                sum+=i;
+            }
+            long sum2 = 0;
+            for (long i = 0; i < 1000000000; i++) {
+                sum2+=i;
+            }
+            long sum3 = 0;
+            for (long i = 0; i < 1000000000; i++) {
+                sum3+=i;
+            }
+            long sum4 = 0;
+            for (long i = 0; i < 1000000; i++) {
+                sum4+=i;
+            }
+            log.info("goodbye");
             return REVIEWS;
         });
         when(countryService.findByMovieId(movieId)).thenAnswer(invocation -> {
@@ -64,9 +82,15 @@ class ParallelMovieEnrichmentServiceTest {
 
         parallelMovieEnrichmentService.enrichMovie(movie, MovieEnrichmentService.MovieEnrichType.COUNTRIES, MovieEnrichmentService.MovieEnrichType.REVIEWS, MovieEnrichmentService.MovieEnrichType.GENRES);
 
-        assertNotNull(movie.getReviews());
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         assertNotNull(movie.getCountries());
         assertNotNull(movie.getGenres());
+        assertNotNull(movie.getReviews());
 
         assertEquals(REVIEWS, movie.getReviews());
         assertEquals(GENRES, movie.getGenres());

@@ -3,6 +3,7 @@ package com.sotska.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sotska.entity.Currency;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,9 @@ public class CurrencyRateService {
         return currencyRates.get(currency);
     }
 
-    @Scheduled(fixedDelayString = "${cache.time-to-live-hours.currency-rates}", timeUnit = TimeUnit.HOURS)
+    @PostConstruct
+    @Scheduled(initialDelayString = "${cache.time-to-live-hours.currency-rates}",
+            fixedDelayString = "${cache.time-to-live-hours.currency-rates}", timeUnit = TimeUnit.HOURS)
     private void updateCurrencyRates() {
         currencyRates = extractCurrencyRates(List.of(USD, EUR));
         log.info("Currency rates was updated.");

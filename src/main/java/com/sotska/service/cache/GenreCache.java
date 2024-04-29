@@ -3,6 +3,7 @@ package com.sotska.service.cache;
 import com.sotska.mapper.GenreMapper;
 import com.sotska.repository.GenreRepository;
 import com.sotska.web.dto.GenreCacheDto;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -22,16 +23,17 @@ public class GenreCache {
 
     private final GenreRepository genreRepository;
     private final GenreMapper genreMapper;
-    private List<GenreCacheDto> cachedGenres;
+    private volatile List<GenreCacheDto> cachedGenres;
 
     @SneakyThrows
     public List<GenreCacheDto> findAll() {
         return new ArrayList<>(cachedGenres);
     }
 
+    @PostConstruct
     @Scheduled(fixedDelayString = "${cache.time-to-live-hours.genre}", initialDelayString = "${cache.time-to-live-hours.genre}",
             timeUnit = TimeUnit.HOURS)
-    public void updateData() {
+    private void updateData() {
         var genres = genreRepository.findAll();
 
         cachedGenres = genres.stream().map(genreMapper::toGenreCacheDto).collect(toList());

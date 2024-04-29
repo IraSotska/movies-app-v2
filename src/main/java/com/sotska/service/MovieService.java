@@ -3,10 +3,10 @@ package com.sotska.service;
 import com.sotska.entity.*;
 import com.sotska.exception.MoviesException;
 import com.sotska.mapper.MovieMapper;
-import com.sotska.repository.MovieCreateRepository;
 import com.sotska.repository.MovieRepository;
 import com.sotska.service.cache.SoftReferenceCache;
 import com.sotska.web.dto.CreateMovieRequestDto;
+import com.sotska.web.dto.CreateMovieResponseDto;
 import com.sotska.web.dto.MovieCacheDto;
 import com.sotska.web.dto.UpdateMovieRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,6 @@ import static com.sotska.service.MovieEnrichmentService.MovieEnrichType.*;
 public class MovieService {
 
     private final MovieRepository movieRepository;
-    private final MovieCreateRepository movieCreateRepository;
     private final CurrencyRateService currencyRateService;
     private final MovieMapper movieMapper;
     private final GenreService genreService;
@@ -59,16 +58,16 @@ public class MovieService {
     }
 
     @Transactional
-    public MovieCreate create(CreateMovieRequestDto requestDto) throws MoviesException {
-        var movie = movieMapper.toCreateMovie(requestDto);
+    public CreateMovieResponseDto create(CreateMovieRequestDto requestDto) throws MoviesException {
+        var movie = movieMapper.toMovie(requestDto);
         enrichGenresAndCountriesByIds(movie, requestDto.getGenreIds(), requestDto.getCountryIds());
 
-        return movieCreateRepository.save(movie);
+        return movieMapper.toCreateMovieResponseDto(movieRepository.save(movie));
     }
 
     @Transactional
-    public MovieCreate update(UpdateMovieRequestDto requestDto, Long id) {
-        var existingMovie = movieCreateRepository.findById(id);
+    public CreateMovieResponseDto update(UpdateMovieRequestDto requestDto, Long id) {
+        var existingMovie = movieRepository.findById(id);
 
         if (existingMovie.isEmpty()) {
             throw new MoviesException(NOT_FOUND, "Id " + id + " not present.");
@@ -79,10 +78,10 @@ public class MovieService {
         enrichGenresAndCountriesByIds(movie, requestDto.getGenreIds(), requestDto.getCountryIds());
         movieCache.update(movie.getId(), movieMapper.toMovieCacheDto(movie));
 
-        return movieCreateRepository.save(movie);
+        return movieMapper.toCreateMovieResponseDto(movieRepository.save(movie));
     }
 
-    private void enrichGenresAndCountriesByIds(MovieCreate movie, List<Long> genreIds, List<Long> countryIds) {
+    private void enrichGenresAndCountriesByIds(Movie movie, List<Long> genreIds, List<Long> countryIds) {
         movie.setGenres(genreService.checkIfExistAndGetByIds(genreIds));
         movie.setCountries(countryService.checkIfExistAndGetByIds(countryIds));
     }

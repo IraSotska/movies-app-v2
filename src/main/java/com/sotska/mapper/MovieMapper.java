@@ -1,9 +1,8 @@
 package com.sotska.mapper;
 
-
-import com.sotska.entity.MovieCreate;
 import com.sotska.entity.Movie;
 import com.sotska.web.dto.CreateMovieRequestDto;
+import com.sotska.web.dto.CreateMovieResponseDto;
 import com.sotska.web.dto.MovieCacheDto;
 import com.sotska.web.dto.UpdateMovieRequestDto;
 import org.mapstruct.BeanMapping;
@@ -15,11 +14,11 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface MovieMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void mergeMovieIntoUpdateMovieRequestDto(UpdateMovieRequestDto dto, @MappingTarget MovieCreate entity);
+    void mergeMovieIntoUpdateMovieRequestDto(UpdateMovieRequestDto dto, @MappingTarget Movie movie);
 
-    MovieCreate toCreateMovie(CreateMovieRequestDto dto);
+    Movie toMovie(CreateMovieRequestDto dto);
 
-    MovieCacheDto toMovieCacheDto(Movie entity);
+    CreateMovieResponseDto toCreateMovieResponseDto(Movie movie);
 
-    MovieCacheDto toMovieCacheDto(MovieCreate entity);
+    MovieCacheDto toMovieCacheDto(Movie movie);
 }
