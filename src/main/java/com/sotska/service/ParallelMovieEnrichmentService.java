@@ -47,19 +47,29 @@ public class ParallelMovieEnrichmentService implements MovieEnrichmentService {
 
         if (types.contains(COUNTRIES)) {
             tasks.add(() -> {
-                movie.setCountries(countryService.findByMovieId(movieId));
+                var movies = countryService.findByMovieId(movieId);
+                if (Thread.currentThread().isInterrupted()) {
+                    return movie;
+                }
+                movie.setCountries(movies);
                 return movie;
             });
         }
         if (types.contains(REVIEWS)) {
             tasks.add(() -> {
                 movie.setReviews(reviewService.findByMovieId(movieId));
+                if (Thread.currentThread().isInterrupted()) {
+                    return movie;
+                }
                 return movie;
             });
         }
         if (types.contains(GENRES)) {
             tasks.add(() -> {
                 movie.setGenres(genreService.findByMovieId(movieId));
+                if (Thread.currentThread().isInterrupted()) {
+                    return movie;
+                }
                 return movie;
             });
         }
